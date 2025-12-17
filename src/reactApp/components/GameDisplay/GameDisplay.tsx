@@ -1,0 +1,37 @@
+import * as React from 'react';
+
+import {Game} from '../../../gameApp/gameSystems/Game';
+
+import './GameDisplay.scss';
+
+
+class GameDisplay extends React.Component {
+
+  private canvas: React.RefObject<HTMLCanvasElement>;
+
+  constructor(props: any){
+    super(props);
+
+    this.canvas = React.createRef();
+  }
+
+  componentDidMount(){
+    if(this.canvas.current != null){
+      this.canvas.current.oncontextmenu = () => false;
+    }
+    
+    Game.init(this.canvas.current || new HTMLCanvasElement());
+
+    document.addEventListener('visibilitychange', () => {
+      if(document.hidden){
+        Game.pause();
+      }
+    });
+  }
+
+  render() {
+    return <canvas width="1920" height="882" className='game-canvas hide' ref={this.canvas}></canvas>
+  }
+}
+	
+export default GameDisplay;
