@@ -9,6 +9,8 @@ import {Keypad} from '../gamer/Keypad';
 import {Cursor} from '../gamer/Cursor';
 import {Gamer} from '../gamer/Gamer';
 
+import {Resources} from '../resources/Resources';
+
 import {Menu} from '../../reactApp/components/Menu/Menu';
 
 
@@ -81,11 +83,11 @@ export class Game {
 		///** logics **//
         Game.mouseLogic(drawsDiffMs); //логика обработки мыши
 		
-		Cursor.logic(drawsDiffMs);
-
 		Labels.logic(drawsDiffMs);
 
 		AnimationsSystem.logic();
+
+        Cursor.logic(drawsDiffMs);
 
 		//FPS.counting();
 
@@ -100,12 +102,16 @@ export class Game {
 		}
 
 		//при изменении размера canvas, мы должны масштабировать координаты мыши
-		//let x = Mouse.canvasX;
-		//TestPage.tsxlet y = Mouse.canvasY;
+		const x = Mouse.canvasX;
+		const y = Mouse.canvasY;
+		let alpha = Draw.ctx.getImageData(x, y, 1, 1).data[3]; //pixel alpha
+		let isHoverFound = alpha > 200; //если какой-либо объект находится под курсором (минимум 179 - затемнение фона)
 
         let isCursorChanged = false;
 
-        Cursor.logic(drawsDiffMs);
+		if(!isCursorChanged){
+			isCursorChanged = Resources.mouseLogic(x, y, Mouse.isClick, isHoverFound);
+		}
 
 		if(!isCursorChanged){
 			Cursor.setCursor(Cursor.default);
@@ -132,10 +138,14 @@ export class Game {
 
 	private static drawAll(millisecondsFromStart: number, drawsDiffMs: number) : void{
 		Draw.clear(); //очищаем холст
+        
+		Resources.draw(drawsDiffMs);
 	
 		AnimationsSystem.draw(drawsDiffMs);
 	
 		Labels.draw();
+
+        Cursor.draw(drawsDiffMs);
 	
 		if (Game.isPaused){
 			Draw.drawBlackout(); //затемняем фон

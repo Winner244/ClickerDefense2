@@ -4,14 +4,28 @@ import { App } from '../../App';
 import * as MenuStore from '../../components/Menu/MenuStore';
 
 import {Helper} from '../../helpers/Helper';
-import { ImageHandler } from '../../../gameApp/ImageHandler';
+
+import {ImageHandler} from '../../../gameApp/ImageHandler';
 
 import './TestPage.scss';  
+import { Resources } from '../../../gameApp/resources/Resources';
 
 class TestPage extends React.Component {
     text: string = "";
 
-    listOfTests: { key: string, code: () => {  } }[] = [];
+    listOfTests: { key: string, code: () => void }[] = [
+        {
+            key: 'Tree resource test',
+            code: () => {
+                const { Tree } = require('../../../gameApp/resources/Tree');
+                Tree.init();
+
+                Resources.all.push(new Tree(200, 200, 0));
+                Resources.all.push(new Tree(600, 300, 2));
+                Resources.all.push(new Tree(1400, 200, 5));
+            }
+        }
+    ];
 
     waitLoadingImage(imageHandler: ImageHandler, callback: Function){
         setTimeout(() => {

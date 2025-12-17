@@ -11,16 +11,20 @@ export class Draw{
 	}
 
 	/** Прорисовка жизней */
-	static drawHealth(x: number, y: number, width: number, healthMax: number, healthCurrent: number){
+	static drawHealth(x: number, y: number, width: number, healthMax: number, healthCurrent: number, 
+        mainColor: string = "red", 
+        borderColor: string = "orange",
+        otherColor: string = "black"
+    ): void{
 		let height = 2;
 		let border = 0;
-		Draw.ctx.fillStyle = "orange";
+		Draw.ctx.fillStyle = borderColor;
 		Draw.ctx.fillRect(x, y, width + border * 2, height + border * 2);
 
-		Draw.ctx.fillStyle = "black";
+		Draw.ctx.fillStyle = otherColor;
 		Draw.ctx.fillRect(x + border, y + border, width, height);
 
-		Draw.ctx.fillStyle = "red";
+		Draw.ctx.fillStyle = mainColor;
 		Draw.ctx.fillRect(x + border, y + border, width * (healthCurrent/ healthMax), height);
 	}
 
