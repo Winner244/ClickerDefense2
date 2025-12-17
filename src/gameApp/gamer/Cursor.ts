@@ -49,10 +49,10 @@ export class Cursor{
 
     static draw(drawsDiffMs: number){
         if(this.customCursor !== null){
-			Draw.ctx.setTransform(1, 0, 0, 1, Mouse.canvasX + 16, Mouse.canvasY + 16); 
+			Draw.ctx.setTransform(1, 0, 0, 1, Mouse.canvasX + 32, Mouse.canvasY + 32); 
 			Draw.ctx.rotate(this.customCursorAngle * Math.PI / 180);
 
-            Draw.ctx.drawImage(this.customCursor, -16, -16, 32, 32);
+            Draw.ctx.drawImage(this.customCursor, -32, -32, 32, 32);
 
 			Draw.ctx.setTransform(1, 0, 0, 1, 0, 0);
 			Draw.ctx.rotate(0);

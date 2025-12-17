@@ -29,7 +29,7 @@ export class Resources
 					if(isClick){
 						resource.onClicked(Gamer.cursorDamage, mouseX, mouseY);
                         if(resource.cursorHover !== null)
-                            Cursor.rotateCustomCursor(resource.cursorHover, -90, 200);
+                            Cursor.rotateCustomCursor(resource.cursorHover, -50, 200);
 					}
 
 					return true;
