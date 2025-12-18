@@ -38,12 +38,21 @@ export class Cursor{
         document.body.style.cursor = "none";
         this.customCursor = cursor;
         this.customCursorAngle = angle;
-        this.customCursorAngleReturnSpeed = returnSpeed;
+        this.customCursorAngleReturnSpeed = -1 * Math.sign(angle) * returnSpeed;
     }
 
     static logic(drawsDiffMs: number){
-        if(this.customCursor !== null && (this.customCursorAngle > 0.1 || this.customCursorAngle < -0.1) && this.customCursorAngleReturnSpeed > 0){
-            this.customCursorAngle += -1 * Math.sign(this.customCursorAngle) * this.customCursorAngleReturnSpeed * (drawsDiffMs / 1000);
+        if(this.customCursor !== null && this.customCursorAngle !== 0 && this.customCursorAngleReturnSpeed !== 0){
+            const delta = this.customCursorAngleReturnSpeed * (drawsDiffMs / 1000);
+            const nextAngle = this.customCursorAngle + delta;
+
+            if(Math.sign(nextAngle) !== Math.sign(this.customCursorAngle) || Math.abs(nextAngle) < 0.1){
+                this.customCursorAngle = 0;
+                this.customCursorAngleReturnSpeed = 0;
+            }
+            else{
+                this.customCursorAngle = nextAngle;
+            }
         }
     }
 

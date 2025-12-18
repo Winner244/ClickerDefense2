@@ -7,6 +7,10 @@ export class Resources
 {
 	static all: Resource[] = []; //все ресурсы на карте
 
+    static AddResource(resource: Resource): void{
+        Resources.all.push(resource);
+		Resources.all.sort((a, b) => (a.y + a.height) - (b.y + b.height));
+    }
 
 	static mouseLogic(mouseX: number, mouseY: number, isClick: boolean, isHoverFound: boolean): boolean{
 		if(!isHoverFound){
@@ -41,6 +45,6 @@ export class Resources
 	}
     
 	static draw(drawsDiffMs: number): void{
-		Resources.all.forEach(resource => resource.draw(drawsDiffMs));
+		Resources.all.forEach(resource => resource.draw(drawsDiffMs)); 
 	}
 }

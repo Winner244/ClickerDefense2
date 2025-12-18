@@ -20,9 +20,9 @@ class TestPage extends React.Component {
                 const { Tree } = require('../../../gameApp/resources/Tree');
                 Tree.init();
 
-                Resources.all.push(new Tree(200, 200, 0));
-                Resources.all.push(new Tree(600, 300, 2));
-                Resources.all.push(new Tree(1400, 200, 5));
+                for(var i = 0; i<7; i++){
+                    Resources.AddResource(new Tree(0 + i * 250, i % 2 == 0 ? 50 : 400, i));
+                }
             }
         }
     ];
