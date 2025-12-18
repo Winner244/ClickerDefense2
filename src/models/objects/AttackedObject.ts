@@ -219,12 +219,14 @@ export class AttackedObject {
 		var src = imageOrAnimation instanceof HTMLImageElement 
 			? imageOrAnimation.src 
 			: imageOrAnimation.image.src;
-		var key = src + '|' + frame;
+		var key = src + '|' + frame + '|' + this.angle + '|' + (this.isInvertDraw ? '1' : '0') + '|' + this.scaleSize;
 		if(key in this._canvas){
 			this.currentCanvas = this._canvas[key];
 		}
 		else{
-			var newCanvas = new OffscreenCanvas(imageOrAnimation.width, imageOrAnimation.height);
+            var width = imageOrAnimation.width * this.scaleSize;
+            var height = imageOrAnimation.height * this.scaleSize;
+			var newCanvas = new OffscreenCanvas(width, height);
 			var context = newCanvas.getContext('2d');
 			if (context) {
 				let isInvert = this.isInvertDraw;
@@ -234,13 +236,19 @@ export class AttackedObject {
 					context.save();
 					context.scale(-1, 1);
 				}
+        
+                context.setTransform(1, 0, 0, 1, width / 2, height / 2); 
+                context.rotate(this.angle * Math.PI / 180);
 
 				if(imageOrAnimation instanceof HTMLImageElement){
-					context.drawImage(imageOrAnimation, 0, 0, invertSign * newCanvas.width, newCanvas.height);
-				}
+					context.drawImage(imageOrAnimation, invertSign * (- width / 2), - height / 2, invertSign * width, height);
+                }
 				else {
-					imageOrAnimation.drawBase(context, null, 0, 0, invertSign * newCanvas.width, newCanvas.height);
+					imageOrAnimation.drawBase(context, null, invertSign * (- width / 2), - height / 2, invertSign * width, height);
 				}
+
+                context.setTransform(1, 0, 0, 1, 0, 0);
+                context.rotate(0);
 
 				if(isInvert){
 					context.restore();
@@ -299,7 +307,7 @@ export class AttackedObject {
 		}
 		else if(imageOrAnimation instanceof HTMLImageElement){
 			let image = Draw.getFilteredImage(filter, imageOrAnimation, this.width, this.height);
-			Draw.ctx.drawImage(image, invertSign * x, y, invertSign * this.width, this.height);
+			//Draw.ctx.drawImage(image, invertSign * x, y, invertSign * this.width, this.height);
 			this.setCanvas(imageOrAnimation);
 		}
 		else{
@@ -309,6 +317,10 @@ export class AttackedObject {
 
         Draw.ctx.setTransform(1, 0, 0, 1, 0, 0);
         Draw.ctx.rotate(0);
+
+        if(this.currentCanvas){
+           Draw.ctx.drawImage(this.currentCanvas, invertSign * this.x, this.y, invertSign * this.width, this.height);
+        }
 	}
 
 	drawHealthBase(x: number|null = null, y: number|null = null, width: number|null = null, 

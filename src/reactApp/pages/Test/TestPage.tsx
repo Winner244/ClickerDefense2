@@ -24,6 +24,16 @@ class TestPage extends React.Component {
                     Resources.AddResource(new Tree(0 + i * 250, i % 2 == 0 ? 50 : 400, i));
                 }
             }
+        },
+        
+        {
+            key: 'Wood',
+            code: () => {
+                const { Wood } = require('../../../gameApp/resources/collected/Wood');
+                Wood.init();
+
+                Resources.AddResource(new Wood(200, 200, 0));
+            }
         }
     ];
 
