@@ -17,7 +17,7 @@ class TestPage extends React.Component {
         {
             key: 'Tree resource test',
             code: () => {
-                const { Tree } = require('../../../gameApp/resources/Tree');
+                const { Tree } = require('../../../gameApp/resources/mined/Tree');
                 Tree.init();
 
                 for(var i = 0; i<7; i++){

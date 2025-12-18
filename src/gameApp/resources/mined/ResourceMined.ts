@@ -1,7 +1,7 @@
-import {AttackedObject} from "../../models/objects/AttackedObject";
+import {AttackedObject} from "../../../models/objects/AttackedObject";
 
-/// Ресурс - базовый класс для всех ресурсов на карте
-export class Resource extends AttackedObject{
+/// Добываемый Ресурс - базовый класс для всех ресурсов на карте
+export class ResourceMined extends AttackedObject{
 
     cursorHover: HTMLImageElement|null = null;
 

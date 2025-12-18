@@ -1,15 +1,23 @@
 import { Cursor } from "../gamer/Cursor";
 import { Gamer } from "../gamer/Gamer";
-import { Resource } from "./Resource";
+import { ResourceCollected } from "./collected/ResourceCollected";
+import { ResourceMined } from "./mined/ResourceMined";
 
 /** Система управления всеми ресурсами - единичный статичный класс */
 export class Resources
 {
-	static all: Resource[] = []; //все ресурсы на карте
-
-    static AddResource(resource: Resource): void{
-        Resources.all.push(resource);
-		Resources.all.sort((a, b) => (a.y + a.height) - (b.y + b.height));
+	static allCollected: ResourceCollected[] = []; //все собираемые ресурсы на карте
+	static allMined: ResourceMined[] = []; //все добываемые ресурсы на карте
+    
+    static AddResource(resource: ResourceMined | ResourceCollected): void{
+        if(resource instanceof ResourceCollected){
+            Resources.allCollected.push(resource);
+            Resources.allCollected.sort((a, b) => (a.y + a.height) - (b.y + b.height));
+        }
+        else if(resource instanceof ResourceMined){
+            Resources.allMined.push(resource);
+            Resources.allMined.sort((a, b) => (a.y + a.height) - (b.y + b.height));
+        }
     }
 
 	static mouseLogic(mouseX: number, mouseY: number, isClick: boolean, isHoverFound: boolean): boolean{
@@ -17,9 +25,9 @@ export class Resources
 			return false; 
 		}
 
-        for(var i = 0; i< Resources.all.length; i++)
+        for(var i = 0; i < Resources.allMined.length; i++)
         {
-            const resource = Resources.all[i];
+            const resource = Resources.allMined[i];
             //проверяем попадание клика по ресурсу
 			if (mouseX > resource.x && mouseX < resource.x + resource.width &&
 				mouseY > resource.y && mouseY < resource.y + resource.height)
@@ -41,10 +49,36 @@ export class Resources
 			}
 		}
 
+        for(var i = 0; i < Resources.allCollected.length; i++)
+        {
+            const resource = Resources.allCollected[i];
+            //проверяем попадание клика по ресурсу
+			if (mouseX > resource.x && mouseX < resource.x + resource.width &&
+				mouseY > resource.y && mouseY < resource.y + resource.height)
+			{
+				if (resource.containsPoint(mouseX - resource.x, mouseY - resource.y)) 
+				{
+                    if(resource.cursorHover !== null)
+                        if (resource.cursorHover instanceof HTMLImageElement)
+					        Cursor.setCustomCursor(resource.cursorHover);
+                        else
+                            Cursor.setCursor(resource.cursorHover);
+
+					//игрок кликает по ресурсу
+					if(isClick){
+						resource.onClicked(Gamer.cursorDamage, mouseX, mouseY);
+					}
+
+					return true;
+				}
+			}
+		}
+
 		return false;
 	}
     
 	static draw(drawsDiffMs: number): void{
-		Resources.all.forEach(resource => resource.draw(drawsDiffMs)); 
+		Resources.allMined.forEach(resource => resource.draw(drawsDiffMs)); 
+		Resources.allCollected.forEach(resource => resource.draw(drawsDiffMs)); 
 	}
 }

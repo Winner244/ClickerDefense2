@@ -3,10 +3,12 @@ import {Draw} from '../gameSystems/Draw';
 import {Mouse} from './Mouse';
 
 import StandartImage from '../../assets/cursors/Standart.png';
+import HandImage from '../../assets/cursors/Hand.png';
 
 /** Отображение курсора мыши - единичный статичный класс */
 export class Cursor{
 	static readonly default: string = StandartImage;
+	static readonly hand: string = HandImage;
 
     static customCursor: HTMLImageElement|null = null;
     static customCursorAngle: number = 0;

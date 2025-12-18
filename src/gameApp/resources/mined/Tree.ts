@@ -1,27 +1,28 @@
-import {Resource} from "./Resource";
+import {ResourceMined} from "./ResourceMined";
 
-import {Gamer} from "../gamer/Gamer";
+import {ImageHandler} from "../../ImageHandler";
 
-import {ImageHandler} from "../ImageHandler";
+import {AudioSystem} from "../../gameSystems/AudioSystem";
 
-import {AudioSystem} from "../gameSystems/AudioSystem";
+import Tree1Image from '../../../assets/img/resources/tree/tree1.png';  
+import Tree2Image from '../../../assets/img/resources/tree/tree2.png';  
+import Tree3Image from '../../../assets/img/resources/tree/tree3.png';  
+import Tree4Image from '../../../assets/img/resources/tree/tree4.png';  
+import Tree5Image from '../../../assets/img/resources/tree/tree5.png';  
+import Tree6Image from '../../../assets/img/resources/tree/tree6.png';  
+import Tree7Image from '../../../assets/img/resources/tree/tree7.png'; 
 
-import Tree1Image from '../../assets/img/tree/tree1.png';  
-import Tree2Image from '../../assets/img/tree/tree2.png';  
-import Tree3Image from '../../assets/img/tree/tree3.png';  
-import Tree4Image from '../../assets/img/tree/tree4.png';  
-import Tree5Image from '../../assets/img/tree/tree5.png';  
-import Tree6Image from '../../assets/img/tree/tree6.png';  
-import Tree7Image from '../../assets/img/tree/tree7.png'; 
+import Axe1Image from '../../../assets/img/cursors/axe1.png';  
 
-import Axe1Image from '../../assets/img/cursors/axe1.png';  
-
-import Axe1Sound from '../../assets/sounds/axe/axe1.mp3';  
-import Axe2Sound from '../../assets/sounds/axe/axe2.mp3';  
-import Axe3Sound from '../../assets/sounds/axe/axe3.mp3';  
+import Axe1Sound from '../../../assets/sounds/axe/axe1.mp3';  
+import Axe2Sound from '../../../assets/sounds/axe/axe2.mp3';  
+import Axe3Sound from '../../../assets/sounds/axe/axe3.mp3';  
+import { Resources } from "../Resources";
+import { Wood } from "../collected/Wood";
+import { Helper } from "../../helpers/Helper";
 
 /// Ресурс - дерево
-export class Tree extends Resource{
+export class Tree extends ResourceMined{
 	static readonly imageHandler: ImageHandler = new ImageHandler();
 
 	private static readonly cursorAxe: HTMLImageElement = new Image();
@@ -68,7 +69,8 @@ export class Tree extends Resource{
 		];
 		AudioSystem.playRandomV(mouseX, listOfSounds, 1);
         this.applyDamage(damage, mouseX, mouseY, null, false);
-        Gamer.addWood(damage);
+        Wood.init();
+        Resources.AddResource(new Wood(this.x + this.width / 2, this.y + this.height / 3 * 2, Helper.getRandom(1, 1)));
     }
 
     drawHealth(): void{
