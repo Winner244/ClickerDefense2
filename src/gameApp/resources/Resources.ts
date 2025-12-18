@@ -30,12 +30,25 @@ export class Resources
 			return false; 
 		}
 
+		const isPointInResourceBounds = (resource: ResourceCollected|ResourceMined): boolean => {
+			if(resource.currentCanvas){
+				const left = resource.centerX - resource.currentCanvas.width / 2;
+				const right = resource.centerX + resource.currentCanvas.width / 2;
+				const top = resource.centerY - resource.currentCanvas.height / 2;
+				const bottom = resource.centerY + resource.currentCanvas.height / 2;
+
+				return mouseX > left && mouseX < right && mouseY > top && mouseY < bottom;
+			}
+
+			return mouseX > resource.x && mouseX < resource.x + resource.width &&
+				mouseY > resource.y && mouseY < resource.y + resource.height;
+		};
+
         for(var i = 0; i < Resources.allCollected.length; i++)
         {
             const resource = Resources.allCollected[i];
             //проверяем попадание клика по ресурсу
-			if (mouseX > resource.x && mouseX < resource.x + resource.width &&
-				mouseY > resource.y && mouseY < resource.y + resource.height)
+			if (isPointInResourceBounds(resource))
 			{
 				if (resource.containsPoint(mouseX - resource.x, mouseY - resource.y)) 
 				{
@@ -59,8 +72,7 @@ export class Resources
         {
             const resource = Resources.allMined[i];
             //проверяем попадание клика по ресурсу
-			if (mouseX > resource.x && mouseX < resource.x + resource.width &&
-				mouseY > resource.y && mouseY < resource.y + resource.height)
+			if (isPointInResourceBounds(resource))
 			{
 				if (resource.containsPoint(mouseX - resource.x, mouseY - resource.y)) 
 				{
