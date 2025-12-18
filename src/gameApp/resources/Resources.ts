@@ -20,33 +20,14 @@ export class Resources
         }
     }
 
+    static DestroyResource(resourceId: string): void{
+        this.allCollected = this.allCollected.filter(r => r.id !== resourceId);
+        this.allMined = this.allMined.filter(r => r.id !== resourceId);
+    }
+
 	static mouseLogic(mouseX: number, mouseY: number, isClick: boolean, isHoverFound: boolean): boolean{
 		if(!isHoverFound){
 			return false; 
-		}
-
-        for(var i = 0; i < Resources.allMined.length; i++)
-        {
-            const resource = Resources.allMined[i];
-            //проверяем попадание клика по ресурсу
-			if (mouseX > resource.x && mouseX < resource.x + resource.width &&
-				mouseY > resource.y && mouseY < resource.y + resource.height)
-			{
-				if (resource.containsPoint(mouseX - resource.x, mouseY - resource.y)) 
-				{
-                    if(resource.cursorHover !== null)
-					    Cursor.setCustomCursor(resource.cursorHover);
-
-					//игрок кликает по ресурсу
-					if(isClick){
-						resource.onClicked(Gamer.cursorDamage, mouseX, mouseY);
-                        if(resource.cursorHover !== null)
-                            Cursor.rotateCustomCursor(resource.cursorHover, -50, 200);
-					}
-
-					return true;
-				}
-			}
 		}
 
         for(var i = 0; i < Resources.allCollected.length; i++)
@@ -73,6 +54,31 @@ export class Resources
 				}
 			}
 		}
+
+        for(var i = 0; i < Resources.allMined.length; i++)
+        {
+            const resource = Resources.allMined[i];
+            //проверяем попадание клика по ресурсу
+			if (mouseX > resource.x && mouseX < resource.x + resource.width &&
+				mouseY > resource.y && mouseY < resource.y + resource.height)
+			{
+				if (resource.containsPoint(mouseX - resource.x, mouseY - resource.y)) 
+				{
+                    if(resource.cursorHover !== null)
+					    Cursor.setCustomCursor(resource.cursorHover);
+
+					//игрок кликает по ресурсу
+					if(isClick){
+						resource.onClicked(Gamer.cursorDamage, mouseX, mouseY);
+                        if(resource.cursorHover !== null)
+                            Cursor.rotateCustomCursor(resource.cursorHover, -50, 200);
+					}
+
+					return true;
+				}
+			}
+		}
+
 
 		return false;
 	}

@@ -24,6 +24,8 @@ export class AttackedObject {
 	image: HTMLImageElement; //статичная картинка или фреймы анимации
     animation: AnimationInfinite|null = null;
 
+	angle: number = 0; //угол поворота при отрисовке в градусах
+
 	healthMax: number; //максимум хп
 	defense: number = 0; //защита (уменьшает урон)
 
@@ -282,8 +284,15 @@ export class AttackedObject {
 			return;
 		}
 
-		x = x ?? this.x;
-		y = y ?? this.y;
+		x = (x ?? this.x) + this.width / 2;
+		y = (y ?? this.y) + this.height / 2;
+        
+        Draw.ctx.setTransform(1, 0, 0, 1, x, y); 
+        Draw.ctx.rotate(this.angle * Math.PI / 180);
+
+		x = -this.width / 2;
+		y = -this.height / 2;
+
 		if(imageOrAnimation instanceof OffscreenCanvas){ //without filter 
 			Draw.ctx.drawImage(imageOrAnimation, invertSign * x, y, invertSign * this.width, this.height);
 			this.currentCanvas = imageOrAnimation;
@@ -297,6 +306,9 @@ export class AttackedObject {
 			var frame = imageOrAnimation.draw(drawsDiffMs, invertSign * x, y, invertSign * this.width, this.height, filter, isInvertAnimation);
 			this.setCanvas(imageOrAnimation, frame);
 		}
+
+        Draw.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        Draw.ctx.rotate(0);
 	}
 
 	drawHealthBase(x: number|null = null, y: number|null = null, width: number|null = null, 

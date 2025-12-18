@@ -6,9 +6,11 @@ import {ImageHandler} from "../../ImageHandler";
 
 import {Cursor} from "../../gamer/Cursor";
 
+import {Helper} from "../../helpers/Helper";
+
+import {Resources} from "../Resources";
 
 import Wood1Image from '../../../assets/img/resources/wood/wood1.png';  
-import { Helper } from "../../helpers/Helper";
 
 /// Ресурс - деревяшка - падает при рубке деревьев
 export class Wood extends ResourceCollected{
@@ -36,5 +38,6 @@ export class Wood extends ResourceCollected{
 
     onClicked(damage: number, mouseX: number, mouseY: number): void{
         Gamer.addWood(damage);
+        Resources.DestroyResource(this.id);
     }
 }
