@@ -191,7 +191,17 @@ export class AttackedObject {
 			return false;
 		}
 
-		let alpha = context.getImageData(x, y, 1, 1).data[3]; //pixel alpha
+		const canvasWidth = this.currentCanvas.width;
+		const canvasHeight = this.currentCanvas.height;
+
+		const shiftedX = Math.floor(x - this.width / 2 + canvasWidth / 2);
+		const shiftedY = Math.floor(y - this.height / 2 + canvasHeight / 2);
+
+		if(shiftedX < 0 || shiftedY < 0 || shiftedX >= canvasWidth || shiftedY >= canvasHeight){
+			return false;
+		}
+
+		let alpha = context.getImageData(shiftedX, shiftedY, 1, 1).data[3]; //pixel alpha
 		let isHoverFound = alpha > 200;
 
 		return isHoverFound;
@@ -226,18 +236,17 @@ export class AttackedObject {
 		else{
             var width = imageOrAnimation.width * this.scaleSize;
             var height = imageOrAnimation.height * this.scaleSize;
-			var newCanvas = new OffscreenCanvas(width, height);
+
+			const angleRad = Math.abs(this.angle * Math.PI / 180);
+			const canvasWidth = Math.max(1, Math.ceil(Math.abs(width * Math.cos(angleRad)) + Math.abs(height * Math.sin(angleRad))));
+			const canvasHeight = Math.max(1, Math.ceil(Math.abs(width * Math.sin(angleRad)) + Math.abs(height * Math.cos(angleRad))));
+
+			var newCanvas = new OffscreenCanvas(canvasWidth, canvasHeight);
 			var context = newCanvas.getContext('2d');
 			if (context) {
-				let isInvert = this.isInvertDraw;
-				let invertSign = isInvert ? -1 : 1;
-
-				if(isInvert){
-					context.save();
-					context.scale(-1, 1);
-				}
+				let invertSign = this.isInvertDraw ? -1 : 1;
         
-                context.setTransform(1, 0, 0, 1, width / 2, height / 2); 
+				context.setTransform(1, 0, 0, 1, canvasWidth / 2, canvasHeight / 2); 
                 context.rotate(this.angle * Math.PI / 180);
 
 				if(imageOrAnimation instanceof HTMLImageElement){
@@ -249,10 +258,6 @@ export class AttackedObject {
 
                 context.setTransform(1, 0, 0, 1, 0, 0);
                 context.rotate(0);
-
-				if(isInvert){
-					context.restore();
-				}
 				this.currentCanvas = this._canvas[key] = newCanvas;
 			}
 			else{
@@ -292,35 +297,43 @@ export class AttackedObject {
 			return;
 		}
 
-		x = (x ?? this.x) + this.width / 2;
-		y = (y ?? this.y) + this.height / 2;
-        
-        Draw.ctx.setTransform(1, 0, 0, 1, x, y); 
-        Draw.ctx.rotate(this.angle * Math.PI / 180);
+		const centerX = (x ?? this.x) + this.width / 2;
+		const centerY = (y ?? this.y) + this.height / 2;
 
-		x = -this.width / 2;
-		y = -this.height / 2;
-
-		if(imageOrAnimation instanceof OffscreenCanvas){ //without filter 
-			Draw.ctx.drawImage(imageOrAnimation, invertSign * x, y, invertSign * this.width, this.height);
+		// If we were given a pre-rendered offscreen (already rotated and expanded),
+		// draw it centered with its true dimensions (do not squash into this.width/height).
+		if(imageOrAnimation instanceof OffscreenCanvas){
+			Draw.ctx.setTransform(1, 0, 0, 1, centerX, centerY);
+			Draw.ctx.drawImage(
+				imageOrAnimation,
+				-imageOrAnimation.width / 2,
+				-imageOrAnimation.height / 2,
+				imageOrAnimation.width,
+				imageOrAnimation.height
+			);
+			Draw.ctx.setTransform(1, 0, 0, 1, 0, 0);
 			this.currentCanvas = imageOrAnimation;
+			return;
 		}
-		else if(imageOrAnimation instanceof HTMLImageElement){
+
+		Draw.ctx.setTransform(1, 0, 0, 1, centerX, centerY);
+		Draw.ctx.rotate(this.angle * Math.PI / 180);
+
+		const drawX = -this.width / 2;
+		const drawY = -this.height / 2;
+
+		if(imageOrAnimation instanceof HTMLImageElement){
 			let image = Draw.getFilteredImage(filter, imageOrAnimation, this.width, this.height);
-			//Draw.ctx.drawImage(image, invertSign * x, y, invertSign * this.width, this.height);
+			Draw.ctx.drawImage(image, invertSign * drawX, drawY, invertSign * this.width, this.height);
 			this.setCanvas(imageOrAnimation);
 		}
 		else{
-			var frame = imageOrAnimation.draw(drawsDiffMs, invertSign * x, y, invertSign * this.width, this.height, filter, isInvertAnimation);
+			var frame = imageOrAnimation.draw(drawsDiffMs, invertSign * drawX, drawY, invertSign * this.width, this.height, filter, isInvertAnimation);
 			this.setCanvas(imageOrAnimation, frame);
 		}
 
-        Draw.ctx.setTransform(1, 0, 0, 1, 0, 0);
-        Draw.ctx.rotate(0);
-
-        if(this.currentCanvas){
-           Draw.ctx.drawImage(this.currentCanvas, invertSign * this.x, this.y, invertSign * this.width, this.height);
-        }
+		Draw.ctx.setTransform(1, 0, 0, 1, 0, 0);
+		Draw.ctx.rotate(0);
 	}
 
 	drawHealthBase(x: number|null = null, y: number|null = null, width: number|null = null, 
@@ -332,7 +345,7 @@ export class AttackedObject {
 		width = width ?? this.width;
 
 		if(this.health < this.healthMax && this.health > 0){
-			Draw.drawHealth(x, y, width, this.healthMax, this.health, mainColor, borderColor, otherColor);
+			Draw.drawHealth(x, y, width,  this.healthMax, this.health, mainColor, borderColor, otherColor);
 		}
 	}
 }
