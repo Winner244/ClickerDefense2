@@ -54,13 +54,8 @@ export class AttackedObject {
 
 	modifiers: Modifier[]; //бафы/дебафы
 
-	maxImpulse: number; //максимальное значение импульса 
-	impulseForceDecreasing: number; //сила уменьшения импульса
-	protected _impulseX: number; //импульс от сверх ударов и сотрясений
-	protected _impulseY: number; //импульс от сверх ударов и сотрясений по оси Y
-
-	constructor(x: number, y: number, healthMax: number, scaleSize: number, image: HTMLImageElement,
-		name: string, 
+	constructor(x: number, y: number, healthMax: number, scaleSize: number, name: string, 
+        image: HTMLImageElement,
 		imageHandler: ImageHandler,
 		frames: number, 
 		animationDurationMs: number)
@@ -82,12 +77,6 @@ export class AttackedObject {
 		this.name = name;
 
 		this.imageHandler = imageHandler;
-
-		this.maxImpulse = 0; //отключён по умолчанию
-		this.impulseForceDecreasing = 1;
-
-		this._impulseX = 0;
-		this._impulseY = 0;
 
         this.modifiers = [];
 	}
@@ -120,38 +109,10 @@ export class AttackedObject {
 	get centerY(): number {
 		return this.y + this.height / 2 + this.shiftYForCenter;
 	}
-
-	public set impulseX(value: number){
-		if(value > this.maxImpulse){
-			value = this.maxImpulse;
-		}
-		if(value < this.maxImpulse * -1){
-			value = this.maxImpulse * -1;
-		}
-
-		this._impulseX = value <= 1 && value >= -1 ? 0 : value;
-	}
-
-	public get impulseX(): number{
-		if(this._impulseX >= -1 && this._impulseX <= 1){
-			return 0;
-		}
-
-		return this._impulseX;
-	}
 	
 	logicBase(drawsDiffMs: number): void{
 		if(!this.imageHandler.isImagesCompleted){
 			return;
-		}
-
-		if(this._impulseX < -1 || this._impulseX > 1){
-			this._impulseX -= drawsDiffMs / 1000 * (this._impulseX * this.impulseForceDecreasing);
-		}
-		
-		if(this._impulseY > 1){
-			this._impulseY -= drawsDiffMs / 1000 * (Math.max(this._impulseY, 1) * this.impulseForceDecreasing);
-			this.y -= this._impulseY / drawsDiffMs;
 		}
 
 		this.modifiers.forEach(modifier => modifier.logic(this, drawsDiffMs));

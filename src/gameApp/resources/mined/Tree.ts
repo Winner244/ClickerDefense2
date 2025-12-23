@@ -1,8 +1,10 @@
 import {ResourceMined} from "./ResourceMined";
+import {Resources} from "../Resources";
+import {Wood} from "../collected/Wood";
 
 import {ImageHandler} from "../../ImageHandler";
-
 import {AudioSystem} from "../../gameSystems/AudioSystem";
+
 
 import Tree1Image from '../../../assets/img/resources/tree/tree1.png';  
 import Tree2Image from '../../../assets/img/resources/tree/tree2.png';  
@@ -17,9 +19,6 @@ import Axe1Image from '../../../assets/img/cursors/axe1.png';
 import Axe1Sound from '../../../assets/sounds/axe/axe1.mp3';  
 import Axe2Sound from '../../../assets/sounds/axe/axe2.mp3';  
 import Axe3Sound from '../../../assets/sounds/axe/axe3.mp3';  
-import { Resources } from "../Resources";
-import { Wood } from "../collected/Wood";
-import { Helper } from "../../helpers/Helper";
 
 /// Ресурс - дерево
 export class Tree extends ResourceMined{
@@ -35,12 +34,10 @@ export class Tree extends ResourceMined{
 		super(x, y,  
 			Tree.HEALTH_MAX, //health max
 			1, //scale size
-			Tree.images[variant % Tree.images.length], 
             Tree.name,
+			Tree.images[variant % Tree.images.length], 
             Tree.imageHandler, 0, 0);
 			
-		this.maxImpulse = 2;
-		this.impulseForceDecreasing = 5;
         this.cursorHover = Tree.cursorAxe;
 	}
 
@@ -70,7 +67,17 @@ export class Tree extends ResourceMined{
 		AudioSystem.playRandomV(mouseX, listOfSounds, 1);
         this.applyDamage(damage, mouseX, mouseY, null, false);
         Wood.init();
-        Resources.AddResource(new Wood(this.x + this.width / 2, this.y + this.height / 3 * 2, Helper.getRandom(1, 1)));
+        const middleHeight = this.y + this.height / 2;
+        const woodX = mouseX;
+        const woodY = mouseY > middleHeight + this.height / 4 
+            ? middleHeight 
+            : mouseY < middleHeight - this.height / 4 
+                ? middleHeight 
+                : mouseY;
+        const woodBottomY = this.y + this.height - this.height / 10;
+        const wood = new Wood(woodX,  woodY, woodBottomY, 1);
+        wood.x = mouseX - wood.width / 2;
+        Resources.AddResource(wood); 
     }
 
     drawHealth(): void{

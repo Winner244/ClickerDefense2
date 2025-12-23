@@ -18,12 +18,12 @@ export class Wood extends ResourceCollected{
 
 	private static readonly images: HTMLImageElement[] = []; //разные деревяшки
 
-	constructor(x: number, y: number, variant: number = 0){
-		super(x, y,  
+	constructor(x: number, y: number, bottomY: number, variant: number = 0){
+		super(x, y, bottomY, 
 			1, //health max
 			0.5, //scale size
-			Wood.images[variant % Wood.images.length], 
             Wood.name,
+			Wood.images[variant % Wood.images.length], 
             Wood.imageHandler, 0, 0);
 			
         this.cursorHover = Cursor.hand;

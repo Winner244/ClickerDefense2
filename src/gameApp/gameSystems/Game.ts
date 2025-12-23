@@ -89,6 +89,8 @@ export class Game {
 
         Cursor.logic(drawsDiffMs);
 
+        Resources.logic(drawsDiffMs);
+
 		//FPS.counting();
 
 		Game.drawAll(millisecondsFromStart, drawsDiffMs);

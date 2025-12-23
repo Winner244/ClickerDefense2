@@ -12,7 +12,6 @@ export class Resources
     static AddResource(resource: ResourceMined | ResourceCollected): void{
         if(resource instanceof ResourceCollected){
             Resources.allCollected.push(resource);
-            Resources.allCollected.sort((a, b) => (a.y + a.height) - (b.y + b.height));
         }
         else if(resource instanceof ResourceMined){
             Resources.allMined.push(resource);
@@ -23,6 +22,10 @@ export class Resources
     static DestroyResource(resourceId: string): void{
         this.allCollected = this.allCollected.filter(r => r.id !== resourceId);
         this.allMined = this.allMined.filter(r => r.id !== resourceId);
+    }
+
+    static logic(drawsDiffMs: number): void{
+        Resources.allCollected.forEach(resource => resource.logic(drawsDiffMs));
     }
 
 	static mouseLogic(mouseX: number, mouseY: number, isClick: boolean, isHoverFound: boolean): boolean{
