@@ -16,12 +16,12 @@ import Wood1Image from '../../../assets/img/resources/wood/wood1.png';
 export class Wood extends ResourceCollected{
 	static readonly imageHandler: ImageHandler = new ImageHandler();
 
-	static readonly IMPULSE_X_MAX: number = 500;
-	static readonly IMPULSE_ROTATING_MAX: number = 360;
-	static readonly IMPULSE_X_DECREASE_PER_MS: number = 1;
+	static readonly IMPULSE_X_MAX: number = 300;
+	static readonly IMPULSE_X_DECREASE_PER_MS: number = 0.5;
 	static readonly IMPULSE_ROTATING_DECREASE_PER_MS: number = 1;
 
 	impulseX: number;
+	impulseDecreasing: number;
 	impulseAngle: number;
 
 	private static readonly images: HTMLImageElement[] = []; //разные деревяшки
@@ -35,9 +35,10 @@ export class Wood extends ResourceCollected{
             Wood.imageHandler, 0, 0);
 			
         this.cursorHover = Cursor.hand;
-        this.angle = 90;
+        this.angle = Helper.getRandom(0, 360);
 		this.impulseX = Helper.getRandom(-Wood.IMPULSE_X_MAX, Wood.IMPULSE_X_MAX);
-		this.impulseAngle = this.impulseX;
+		this.impulseAngle = this.impulseX / 2;
+        this.impulseDecreasing = Wood.IMPULSE_X_DECREASE_PER_MS;
 	}
 
 	logic(drawsDiffMs: number): void{

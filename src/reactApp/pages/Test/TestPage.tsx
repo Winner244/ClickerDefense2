@@ -20,9 +20,13 @@ class TestPage extends React.Component {
                 const { Tree } = require('../../../gameApp/resources/mined/Tree');
                 Tree.init();
 
-                for(var i = 0; i<7; i++){
-                    Resources.AddResource(new Tree(0 + i * 250, i % 2 == 0 ? 50 : 400, i));
-                }
+                Resources.AddResource(new Tree(0, 50, 0));
+                Resources.AddResource(new Tree(200, 550, 1));
+                Resources.AddResource(new Tree(500, 50, 2));
+                Resources.AddResource(new Tree(700, 450, 3));
+                Resources.AddResource(new Tree(900, 50, 4));
+                Resources.AddResource(new Tree(1200, 350, 5));
+                Resources.AddResource(new Tree(1400, 50, 6));
             }
         },
         
