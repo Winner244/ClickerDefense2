@@ -28,9 +28,6 @@ export class Game {
 
 	private static _primaryImages: HTMLImageElement[] = [];  // изображения (кроме курсоров) загрузку которых нужно дождаться перед началом игры
 	private static _animationId: number = 0; //техническая переменная для браузера
-	private static _keysDown: Set<string> = new Set<string>();
-	private static _lastPanMouseX: number | null = null;
-	private static _lastPanMouseY: number | null = null;
 
 	/** Инициализация игры */
 	static init(canvas: HTMLCanvasElement, isLoadResources: boolean = true): void{
@@ -44,11 +41,8 @@ export class Game {
 
 		Draw.init(canvas);
 		Camera.reset();
-		Game._keysDown.clear();
-		Game._lastPanMouseX = null;
-		Game._lastPanMouseY = null;
-		Draw.canvas.removeEventListener('wheel', Game.onWheel as any);
-		Draw.canvas.addEventListener('wheel', Game.onWheel as any, { passive: false });
+		Camera.init(Draw.canvas);
+		Camera.setInputState(Game.isPaused, Game.isBlockMouseLogic);
 		Mouse.init();
 		Gamer.init();
 		Labels.init();
@@ -61,9 +55,7 @@ export class Game {
 		}
 
 		document.removeEventListener('keydown', Game.onKeyDown);
-		document.removeEventListener('keyup', Game.onKeyUp);
 		document.addEventListener('keydown', Game.onKeyDown);
-		document.addEventListener('keyup', Game.onKeyUp);
 
 		if(this._animationId === 0 && this._primaryImages.length){
 			this._animationId = window.requestAnimationFrame(Game.go.bind(this));
@@ -93,7 +85,7 @@ export class Game {
 		}
 
 		///** logics **//
-		Game.cameraLogic(drawsDiffMs);
+		Camera.update(drawsDiffMs, Game.isPaused, Game.isBlockMouseLogic);
 		Game.mouseLogic(drawsDiffMs); //логика обработки мыши
 		
 		Labels.logic(drawsDiffMs);
@@ -109,49 +101,6 @@ export class Game {
 		Game.drawAll(millisecondsFromStart, drawsDiffMs);
 
         window.requestAnimationFrame(Game.go.bind(this));
-	}
-
-	private static cameraLogic(drawsDiffMs: number): void {
-		if (Game.isPaused) {
-			return;
-		}
-
-		const dt = drawsDiffMs / 1000;
-		const speedPxPerSec = 700;
-		const step = speedPxPerSec * dt;
-		const worldStep = step / Math.max(0.01, Camera.zoom);
-
-		if (Game._keysDown.has('ArrowLeft') || Game._keysDown.has('a')) {
-			Camera.move(-worldStep, 0);
-		}
-		if (Game._keysDown.has('ArrowRight') || Game._keysDown.has('d')) {
-			Camera.move(worldStep, 0);
-		}
-		if (Game._keysDown.has('ArrowUp') || Game._keysDown.has('w')) {
-			Camera.move(0, -worldStep);
-		}
-		if (Game._keysDown.has('ArrowDown') || Game._keysDown.has('s')) {
-			Camera.move(0, worldStep);
-		}
-
-		// Right-mouse drag pans the world (grab + move)
-		const mx = Mouse.canvasX;
-		const my = Mouse.canvasY;
-		const isInCanvas = mx >= 0 && my >= 0 && mx <= Draw.canvas.width && my <= Draw.canvas.height;
-
-		if (!Game.isBlockMouseLogic && Mouse.isRightDown && isInCanvas) {
-			if (Game._lastPanMouseX !== null && Game._lastPanMouseY !== null) {
-				const dx = mx - Game._lastPanMouseX;
-				const dy = my - Game._lastPanMouseY;
-				Camera.move(-dx / Math.max(0.01, Camera.zoom), -dy / Math.max(0.01, Camera.zoom));
-			}
-			Game._lastPanMouseX = mx;
-			Game._lastPanMouseY = my;
-		}
-		else {
-			Game._lastPanMouseX = null;
-			Game._lastPanMouseY = null;
-		}
 	}
 
 	private static mouseLogic(drawsDiffMs: number) : void {
@@ -180,12 +129,7 @@ export class Game {
 		Mouse.isClick = false;
 	}
 
-	private static normalizeKey(key: string): string {
-		return key.length === 1 ? key.toLowerCase() : key;
-	}
-
 	private static onKeyDown(event: KeyboardEvent) : void{
-		Game._keysDown.add(Game.normalizeKey(event.key));
 		Keypad.isEnter = true;
 		switch(event.key){
 			case 'Escape':
@@ -199,28 +143,6 @@ export class Game {
 			break;
 		}
 		Keypad.isEnter = false;
-	}
-
-	private static onKeyUp(event: KeyboardEvent) : void{
-		Game._keysDown.delete(Game.normalizeKey(event.key));
-	}
-
-	private static onWheel(event: WheelEvent): void {
-		if (Game.isPaused || Game.isBlockMouseLogic) {
-			return;
-		}
-
-		const mx = Mouse.canvasX;
-		const my = Mouse.canvasY;
-		const isInCanvas = mx >= 0 && my >= 0 && mx <= Draw.canvas.width && my <= Draw.canvas.height;
-		if (!isInCanvas) {
-			return;
-		}
-
-		event.preventDefault();
-		const direction = event.deltaY > 0 ? -1 : 1;
-		const factor = direction > 0 ? 1.1 : 1 / 1.1;
-		Camera.setZoomAtScreenPoint(mx, my, Camera.zoom * factor);
 	}
 
 	private static drawAll(millisecondsFromStart: number, drawsDiffMs: number) : void{
@@ -250,6 +172,7 @@ export class Game {
 
 		Cursor.setCursor(Cursor.default);
 		Game.isBlockMouseLogic = true;
+		Camera.setInputState(true, true);
 		cancelAnimationFrame(this._animationId);
 		this._animationId = 0;
 		Game.isPaused = true;
@@ -270,6 +193,7 @@ export class Game {
 
 		Game.isPaused = false;
 		Game.lastDrawTime = 0;
+		Camera.setInputState(false, false);
 		if(!this._animationId)
 		this._animationId = window.requestAnimationFrame(Game.go.bind(this));
 		Mouse.isClick = false;
