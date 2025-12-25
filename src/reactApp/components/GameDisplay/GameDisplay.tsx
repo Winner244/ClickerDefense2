@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import {Game} from '../../../gameApp/gameSystems/Game';
 
-import './GameDisplay.scss';
+import s from './GameDisplay.module.scss';
 
 
 class GameDisplay extends React.Component {
@@ -30,7 +30,12 @@ class GameDisplay extends React.Component {
   }
 
   render() {
-    return <canvas width="1920" height="1200" className='game-canvas' ref={this.canvas}></canvas>
+    return <>
+        <div className={s.gameDisplay__header}>
+            <button>Меню</button>
+        </div>
+        <canvas width="1920" height="1200" className={s.gameDisplay__canvas} ref={this.canvas}></canvas>
+    </>
   }
 }
 	

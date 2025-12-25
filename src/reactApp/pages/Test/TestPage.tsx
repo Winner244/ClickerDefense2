@@ -6,9 +6,11 @@ import * as MenuStore from '../../components/Menu/MenuStore';
 import {Helper} from '../../helpers/Helper';
 
 import {ImageHandler} from '../../../gameApp/ImageHandler';
+import {Resources} from '../../../gameApp/resources/Resources';
 
 import './TestPage.scss';  
-import { Resources } from '../../../gameApp/resources/Resources';
+import { Menu } from '../../components/Menu/Menu';
+import { Game } from '../../../gameApp/gameSystems/Game';
 
 class TestPage extends React.Component {
     text: string = "";
@@ -27,6 +29,9 @@ class TestPage extends React.Component {
                 Resources.AddResource(new Tree(900, 50, 4));
                 Resources.AddResource(new Tree(1200, 350, 5));
                 Resources.AddResource(new Tree(1400, 50, 6));
+
+                Menu.hide();
+                Game.continue();
             }
         },
         

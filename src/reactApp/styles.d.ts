@@ -1,5 +1,3 @@
-/// <reference types="react-scripts" />
-
 declare module '*.module.scss' {
   const classes: { readonly [key: string]: string };
   export default classes;
@@ -9,11 +7,13 @@ declare module '*.module.css' {
   const classes: { readonly [key: string]: string };
   export default classes;
 }
-declare module '*.mp3' {
-  const src: string;
-  export default src;
+
+declare module '*.scss' {
+  const content: string;
+  export default content;
 }
-declare module '*.m4a' {
-  const src: string;
-  export default src;
+
+declare module '*.css' {
+  const content: string;
+  export default content;
 }
