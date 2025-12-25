@@ -69,8 +69,8 @@ export class Label{
 
 		if(this.isDisplayBackground){
 			Draw.ctx.fillStyle = `rgba(${this.backgroundRed},${this.backgroundGreen},${this.backgroundBlue},${opacity})`;
-			Draw.ctx.font = "18px Calibri";
-			Draw.ctx.fillText(this.text, this.x -4, this.y - 1);
+			Draw.ctx.font = "16px Calibri";
+			Draw.ctx.fillText(this.text, this.x -1, this.y - 1);
 		}
 
 		Draw.ctx.fillStyle = `rgba(${this.red},${this.green},${this.blue},${opacity})`;
