@@ -1,4 +1,4 @@
-import { DisctionaryLanguageList } from '../../models/DisctionaryLanguageList';
+import { DisctionaryLanguageList } from '../../models/common/DisctionaryLanguageList';
 
 export const DisctionaryRuList: DisctionaryLanguageList = {
     Menu: {

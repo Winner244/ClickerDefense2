@@ -8,6 +8,23 @@
         display: flex;
     }
 
+    &__resources{
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding-left: 10px;
+        font-size: 25px;
+        font-family: 'SuperBubble';
+    }
+
+    &__resourceIcon{
+        height: 25px;
+    }
+
+    &__resourceValue{
+        line-height: 1;
+    }
+
     &__canvas{ 
         width: 100%;
         position: relative;

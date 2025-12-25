@@ -3,27 +3,43 @@ import { connect } from 'react-redux';
 
 import { ApplicationState } from '../../store';
 import { Game } from '../../../gameApp/gameSystems/Game';
+import { Gamer } from '../../../gameApp/gamer/Gamer';
 
 import * as SettingsStore from '../../store/SettingsStore';
 
 import s from './GameDisplay.module.scss';
 
+import woodImg from '../../../assets/img/resources/wood/wood1.png';
+
 type Props = SettingsStore.SettingsState;
 
-class GameDisplay extends React.Component<Props> {
+type State = {
+    woodCount: number;
+};
+
+class GameDisplay extends React.Component<Props, State> {
 
     private canvas: React.RefObject<HTMLCanvasElement>;
+    private unsubscribeWoodCount?: () => void;
 
     constructor(props: any) {
         super(props);
 
         this.canvas = React.createRef();
+
+        this.state = {
+            woodCount: Gamer.woodCount.value,
+        };
     }
 
     componentDidMount() {
         if (this.canvas.current != null) {
             this.canvas.current.oncontextmenu = () => false;
         }
+
+        this.unsubscribeWoodCount = Gamer.woodCount.subscribe((woodCount) => {
+            this.setState({ woodCount });
+        });
 
         Game.init(this.canvas.current || new HTMLCanvasElement());
 
@@ -32,6 +48,10 @@ class GameDisplay extends React.Component<Props> {
                 Game.pause();
             }
         });
+    }
+
+    componentWillUnmount() {
+        this.unsubscribeWoodCount?.();
     }
 
     onMenuClick() {
@@ -46,8 +66,9 @@ class GameDisplay extends React.Component<Props> {
     render() {
         return <>
             <div id='topHeader' className={s.gameDisplay__header}>
-                <div>
-                    <span></span>
+                <div className={s.gameDisplay__resources}>
+                    <span className={s.gameDisplay__resourceValue}>{this.state.woodCount}</span>
+                    <img className={s.gameDisplay__resourceIcon} src={woodImg} alt="Wood" />
                 </div>
 
                 <button 

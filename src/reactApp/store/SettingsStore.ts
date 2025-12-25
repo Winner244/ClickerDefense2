@@ -1,5 +1,5 @@
 import { Reducer } from 'redux';
-import { DisctionaryLanguageList } from '../../models/DisctionaryLanguageList';
+import { DisctionaryLanguageList } from '../../models/common/DisctionaryLanguageList';
 import { DisctionaryRuList } from '../../assets/languages/ru';
 import { DisctionaryEnList } from '../../assets/languages/en';
 
