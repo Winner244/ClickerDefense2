@@ -31,11 +31,12 @@ export class Mouse{
 	}
 
 	static onMove(event: MouseEvent): void{
-		let reactDiv = document.getElementById('react');
-		let scrollTopMain = reactDiv?.scrollTop ?? 0;
+		const reactDiv = document.getElementById('react');
+        const headerDiv = document.getElementById('topHeader')
+		const scrollTopMain = reactDiv?.scrollTop ?? 0;
 
 		Mouse.x = event.pageX;
-		Mouse.y = event.pageY + scrollTopMain;
+		Mouse.y = event.pageY - (headerDiv?.offsetHeight || 0) + scrollTopMain;
 	}
 
 	static getCanvasMousePoint(): Point{
