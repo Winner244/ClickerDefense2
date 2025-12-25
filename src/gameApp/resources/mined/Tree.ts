@@ -17,8 +17,6 @@ import Tree7Image from '../../../assets/img/resources/tree/tree7.png';
 import Axe1Image from '../../../assets/img/cursors/axe1.png';  
 
 import Axe1Sound from '../../../assets/sounds/axe/axe1.mp3';  
-import Axe2Sound from '../../../assets/sounds/axe/axe2.mp3';  
-import Axe3Sound from '../../../assets/sounds/axe/axe3.mp3';  
 
 type ClickOffsetVariant = { xMin: number; xMax: number; yMin: number; yMax: number };
 
@@ -66,8 +64,6 @@ export class Tree extends ResourceMined{
 			Tree.imageHandler.add(Tree.images).src = Tree7Image;
 			Tree.imageHandler.new(Tree.cursorAxe).src = Axe1Image;
 			AudioSystem.load(Axe1Sound);
-			AudioSystem.load(Axe2Sound);
-			AudioSystem.load(Axe3Sound);
 		}
 	}
 
@@ -84,21 +80,11 @@ export class Tree extends ResourceMined{
 
 
     onClicked(damage: number, mouseX: number, mouseY: number): void{
-		const listOfSounds = [
-			Axe1Sound,
-			Axe2Sound,
-			Axe3Sound,
-		];
-		AudioSystem.playRandomV(mouseX, listOfSounds, 1);
+		AudioSystem.play(mouseX, Axe1Sound, 1, 1, true);
         this.applyDamage(damage, mouseX, mouseY, null, false);
         Wood.init();
-        const middleHeight = this.y + this.height / 2;
         const woodX = mouseX;
-        const woodY = mouseY > middleHeight + this.height / 4 
-            ? middleHeight 
-            : mouseY < middleHeight - this.height / 4 
-                ? middleHeight 
-                : mouseY;
+        const woodY = mouseY;
         const woodBottomY = this.y + this.height - this.height / 10;
         const wood = new Wood(woodX,  woodY, woodBottomY, 1);
         wood.x = mouseX - wood.width / 2;
