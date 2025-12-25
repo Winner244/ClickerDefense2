@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 
 import { ApplicationState } from '../../store';
 import * as MenuStore from './MenuStore';
+import * as SettingsStore from '../../store/SettingsStore';
 
 import {App} from '../../App';
 
@@ -31,6 +32,7 @@ interface Prop {
 type Props =
   MenuStore.MenuState
   & MenuStore.MenuAction
+  & SettingsStore.SettingsState
   & Prop;
 
 export class Menu extends React.Component<Props, IState> {
@@ -152,7 +154,7 @@ export class Menu extends React.Component<Props, IState> {
         onMouseEnter={(e) => this.onMouseEnterInInsideButtons(e)}
         onMouseLeave={(e) => this.onMouseLeaveInsideButtons(e)}
       >
-        Продолжить
+        {this.props.language.Menu.ContinueButtonLabel}
       </button>
     ));
 
@@ -165,7 +167,7 @@ export class Menu extends React.Component<Props, IState> {
         {this.props.isOpen
           ? <div className="menu noselect">
               <div className="menu__body">
-                  <div className="menu__title">Меню</div>
+                  <div className="menu__title">{this.props.language.Menu.HeaderLabel}</div>
                   <div className="menu__close" onClick={() => this.onClickContinue()}>
                       <div className="menu__close-body">x</div>
                   </div>
@@ -204,7 +206,7 @@ export class Menu extends React.Component<Props, IState> {
 // Wire up the React component to the Redux store
 export default connect(
   (state: ApplicationState, ownProps: Prop) => {
-      return { ...state.menu, ...ownProps };
+      return { ...state.menu, ...state.settings, ...ownProps };
   },
   MenuStore.actionCreators
 )(Menu);

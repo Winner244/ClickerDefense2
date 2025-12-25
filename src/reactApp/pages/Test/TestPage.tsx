@@ -8,9 +8,10 @@ import {Helper} from '../../helpers/Helper';
 import {ImageHandler} from '../../../gameApp/ImageHandler';
 import {Resources} from '../../../gameApp/resources/Resources';
 
+import {Menu} from '../../components/Menu/Menu';
+import {Game} from '../../../gameApp/gameSystems/Game';
+
 import './TestPage.scss';  
-import { Menu } from '../../components/Menu/Menu';
-import { Game } from '../../../gameApp/gameSystems/Game';
 
 class TestPage extends React.Component {
     text: string = "";
