@@ -138,6 +138,6 @@ export class Wood extends ResourceCollected{
     onClicked(damage: number, mouseX: number, mouseY: number): void{
         Gamer.addWood(damage);
 		Labels.createResourceLabel(mouseX, mouseY, 200, 50, 0, 50, 0, 0, `+ ${damage}`, this.image);
-        Resources.DestroyResource(this.id);
+        super.onClicked(damage, mouseX, mouseY);
     }
 }

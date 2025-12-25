@@ -1,8 +1,11 @@
 import {AttackedObject} from "../../../models/objects/AttackedObject";
 
 import {Cursor} from "../../gamer/Cursor";
+import {AudioSystem} from "../../gameSystems/AudioSystem";
 
 import {Resources} from "../Resources";
+
+import takeSound from '../../../assets/sounds/take.mp3';
 
 /// Собираемый Ресурс - базовый класс для всех ресурсов на карте
 export class ResourceCollected extends AttackedObject{
@@ -42,7 +45,8 @@ export class ResourceCollected extends AttackedObject{
     }
 
     onClicked(damage: number, mouseX: number, mouseY: number): void{
-        
+        AudioSystem.play(mouseX, takeSound, 1, 1, true);
+        Resources.DestroyResource(this.id);
     }
 
     draw(drawsDiffMs: number): void{
