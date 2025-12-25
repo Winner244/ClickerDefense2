@@ -3,7 +3,16 @@ import { DisctionaryLanguageList } from '../../models/common/DisctionaryLanguage
 export const DisctionaryRuList: DisctionaryLanguageList = {
     Menu: {
         HeaderLabel: 'Меню',
-        ContinueButtonLabel: 'Продолжить'
+        ContinueButtonLabel: 'Продолжить',
+        SettingsButtonLabel: 'Настройки',
+        Settings: {
+            SettingsHeaderLabel: 'Настройки',
+            BackButtonLabel: 'Назад',
+            LanguageLabel: 'Язык',
+            LanguageEnglishLabel: 'Английский',
+            LanguageRussianLabel: 'Русский',
+            SoundsVolumeLabel: 'Громкость звуков'
+        }
     },
     TopHeader: {
         MenuButtonLabel: 'Меню'

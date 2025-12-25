@@ -23,6 +23,16 @@ declare module '*.svg' {
     export default src;
 }
 
+declare module '*.mp3' {
+    const src: string;
+    export default src;
+}
+
+declare module '*.m4a' {
+    const src: string;
+    export default src;
+}
+
 declare module '*.scss' {
     const classes: { readonly [key: string]: string };
     export default classes;
