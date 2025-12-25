@@ -18,3 +18,8 @@
     src: url("./assets/fonts/Super Bubble.ttf"); 
 }
 
+@font-face {
+    font-family: "OverdozeSans"; 
+    src: url("./assets/fonts/overdozesans.ttf"); 
+}
+

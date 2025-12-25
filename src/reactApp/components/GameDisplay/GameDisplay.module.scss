@@ -13,8 +13,8 @@
         align-items: center;
         gap: 6px;
         padding-left: 10px;
-        font-size: 25px;
-        font-family: 'SuperBubble';
+        font-size: 31px;
+        font-family: 'OverdozeSans';
     }
 
     &__resourceIcon{
@@ -22,7 +22,7 @@
     }
 
     &__resourceValue{
-        line-height: 1;
+        padding-top: 10px;
     }
 
     &__canvas{ 
