@@ -23,6 +23,7 @@ import SoundTurnOnSoundUrl from '../../../assets/sounds/menu/soundTurnOn.mp3';
 
 interface IState {
   hoverItem: number;
+  view: 'main' | 'settings';
 }
 
 interface Prop {
@@ -33,6 +34,7 @@ type Props =
   MenuStore.MenuState
   & MenuStore.MenuAction
   & SettingsStore.SettingsState
+  & SettingsStore.SettingsAction
   & Prop;
 
 export class Menu extends React.Component<Props, IState> {
@@ -41,7 +43,8 @@ export class Menu extends React.Component<Props, IState> {
     super(props);
 
     this.state = { 
-      hoverItem: -1
+      hoverItem: -1,
+      view: 'main'
     };
   }
 
@@ -61,12 +64,14 @@ export class Menu extends React.Component<Props, IState> {
   }
 
   private static playSoundSelect(){
-    AudioSystem.play(Keypad.isEnter ? -1 : Mouse.x, SelectingSoundUrl, -15);
+	AudioSystem.play(Keypad.isEnter ? -1 : Mouse.x, SelectingSoundUrl, 20);
   }
 
   componentWillUpdate(nextProps : Props, nextState : IState){
-    if(nextProps.isOpen !== this.props.isOpen && this.state.hoverItem > -1){
-      this.setState({ hoverItem: -1 });
+    if(nextProps.isOpen !== this.props.isOpen){
+      if(this.state.hoverItem > -1 || this.state.view !== 'main'){
+        this.setState({ hoverItem: -1, view: 'main' });
+      }
     }
   }
 
@@ -123,6 +128,28 @@ export class Menu extends React.Component<Props, IState> {
     Game.continue();
   }
 
+  onClickOpenSettings(){
+    Menu.playSoundSelect();
+    this.setState({ view: 'settings', hoverItem: -1 });
+  }
+
+  onClickBackFromSettings(){
+    Menu.playSoundSelect();
+    this.setState({ view: 'main', hoverItem: -1 });
+  }
+
+  onChangeLanguage(event: React.ChangeEvent<HTMLSelectElement>){
+    const value = event.target.value;
+    if(value === 'ru' || value === 'en'){
+      this.props.setLanguageCode(value);
+    }
+  }
+
+  onChangeSoundsVolume(event: React.ChangeEvent<HTMLInputElement>){
+    const nextValue = Number(event.target.value);
+    this.props.setSoundsVolumePercent(nextValue);
+  }
+
   onMouseEnterInInsideButtons(event: React.MouseEvent<HTMLButtonElement, MouseEvent>){
     const element: HTMLButtonElement = event.target as HTMLButtonElement;
     const index: number = parseInt(element.getAttribute('data-key') || '');
@@ -137,13 +164,30 @@ export class Menu extends React.Component<Props, IState> {
     this.forceUpdate();
 
     if(AudioSystem.isEnabled){
-      AudioSystem.play(-1, SoundTurnOnSoundUrl, 0.2);
+		AudioSystem.play(-1, SoundTurnOnSoundUrl, 100);
     }
   }
 
   getItemsMenu(){
     let i = 0;
     const itemsMenu = [];
+
+    if(this.state.view === 'settings'){
+      itemsMenu.push((
+        <button 
+          key={i} 
+          data-key={i} 
+          className={"menu__button " + (this.state.hoverItem === i++ ? 'menu__button--hover' : '')} 
+          onClick={() => this.onClickBackFromSettings()} 
+          onMouseEnter={(e) => this.onMouseEnterInInsideButtons(e)}
+          onMouseLeave={(e) => this.onMouseLeaveInsideButtons(e)}
+        >
+          {this.props.language.Menu.BackButtonLabel}
+        </button>
+      ));
+
+      return itemsMenu;
+    }
 
     itemsMenu.push((
       <button 
@@ -158,6 +202,19 @@ export class Menu extends React.Component<Props, IState> {
       </button>
     ));
 
+    itemsMenu.push((
+      <button 
+        key={i} 
+        data-key={i} 
+        className={"menu__button " + (this.state.hoverItem === i++ ? 'menu__button--hover' : '')} 
+        onClick={() => this.onClickOpenSettings()} 
+        onMouseEnter={(e) => this.onMouseEnterInInsideButtons(e)}
+        onMouseLeave={(e) => this.onMouseLeaveInsideButtons(e)}
+      >
+        {this.props.language.Menu.SettingsButtonLabel}
+      </button>
+    ));
+
     return itemsMenu;
   }
 
@@ -167,10 +224,45 @@ export class Menu extends React.Component<Props, IState> {
         {this.props.isOpen
           ? <div className="menu noselect">
               <div className="menu__body">
-                  <div className="menu__title">{this.props.language.Menu.HeaderLabel}</div>
+                  <div className="menu__title">
+                    {this.state.view === 'settings'
+                      ? this.props.language.Menu.SettingsHeaderLabel
+                      : this.props.language.Menu.HeaderLabel
+                    }
+                  </div>
                   <div className="menu__close" onClick={() => this.onClickContinue()}>
                       <div className="menu__close-body">x</div>
                   </div>
+
+                  {this.state.view === 'settings'
+                    ? <div className='menu__settings'>
+                        <div className='menu__settings-row'>
+                          <div className='menu__settings-label'>{this.props.language.Menu.LanguageLabel}</div>
+                          <select
+                            className='menu__settings-select'
+                            value={this.props.languageCode}
+                            onChange={(e) => this.onChangeLanguage(e)}
+                          >
+                            <option value='en'>{this.props.language.Menu.LanguageEnglishLabel}</option>
+                            <option value='ru'>{this.props.language.Menu.LanguageRussianLabel}</option>
+                          </select>
+                        </div>
+
+                        <div className='menu__settings-row'>
+                          <div className='menu__settings-label'>{this.props.language.Menu.SoundsVolumeLabel}: {this.props.soundsVolumePercent}%</div>
+                          <input
+                            className='menu__settings-range'
+                            type='range'
+                            min={0}
+                            max={100}
+                            step={1}
+                            value={this.props.soundsVolumePercent}
+                            onChange={(e) => this.onChangeSoundsVolume(e)}
+                          />
+                        </div>
+                      </div>
+                    : null
+                  }
 
                   {this.getItemsMenu()}
               </div>
@@ -206,7 +298,11 @@ export class Menu extends React.Component<Props, IState> {
 // Wire up the React component to the Redux store
 export default connect(
   (state: ApplicationState, ownProps: Prop) => {
-      return { ...state.menu, ...state.settings, ...ownProps };
+      return {
+        ...(state.menu as MenuStore.MenuState),
+        ...(state.settings as SettingsStore.SettingsState),
+        ...ownProps
+      };
   },
-  MenuStore.actionCreators
+  { ...MenuStore.actionCreators, ...SettingsStore.actionCreators }
 )(Menu);
