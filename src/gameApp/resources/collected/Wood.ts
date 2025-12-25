@@ -17,12 +17,15 @@ export class Wood extends ResourceCollected{
 	static readonly imageHandler: ImageHandler = new ImageHandler();
 
 	static readonly IMPULSE_X_MAX: number = 300;
-	static readonly IMPULSE_X_DECREASE_PER_MS: number = 0.5;
+	static readonly IMPULSE_X_DECREASE_PER_MS: number = 0.1;
 	static readonly IMPULSE_ROTATING_DECREASE_PER_MS: number = 1;
+	static readonly ANGLE_SNAP_SPEED_DEG_PER_MS: number = 0.25;
+
 
 	impulseX: number;
 	impulseDecreasing: number;
 	impulseAngle: number;
+	private angleSnapTarget: number | null = null;
 
 	private static readonly images: HTMLImageElement[] = []; //разные деревяшки
 
@@ -42,7 +45,9 @@ export class Wood extends ResourceCollected{
 	}
 
 	logic(drawsDiffMs: number): void{
+		const wasFalling = this.y + this.height < this.bottomY;
 		super.logic(drawsDiffMs);
+		const isFalling = this.y + this.height < this.bottomY;
 
 		// horizontal impulse (decays to 0 over time)
 		this.x += this.impulseX * (drawsDiffMs / 1000);
@@ -64,6 +69,59 @@ export class Wood extends ResourceCollected{
 		else if(this.impulseAngle < 0){
 			this.impulseAngle = Math.min(0, this.impulseAngle + Wood.IMPULSE_ROTATING_DECREASE_PER_MS * drawsDiffMs);
 		}
+
+		// after falling: smoothly adjust angle to a stable resting pose
+		if(wasFalling && !isFalling){
+			this.angle = Wood.normalizeAngle(this.angle);
+			this.angleSnapTarget = Wood.getAngleSnapTargetAfterFalling(this.angle);
+			this.impulseAngle = 0;
+            this.impulseX = 0;
+		}
+
+		if(this.angleSnapTarget !== null){
+			const nextAngle = Wood.moveAngleTowards(this.angle, this.angleSnapTarget, Wood.ANGLE_SNAP_SPEED_DEG_PER_MS * drawsDiffMs);
+			this.angle = nextAngle;
+			if(nextAngle === this.angleSnapTarget){
+				this.angleSnapTarget = null;
+			}
+		}
+	}
+
+	private static normalizeAngle(angle: number): number{
+		let normalized = angle % 360;
+		if(normalized < 0){
+			normalized += 360;
+		}
+		return normalized;
+	}
+
+	private static getAngleSnapTargetAfterFalling(angle: number): number | null{
+        // > 45 to 106 move to 45
+        // > 106 to 150 move to 150
+        // > 245 to 286 move to 245
+        // > 286 to 330 move to 330
+		if(angle > 45 && angle < 106){
+			return 45;
+		}
+		if(angle > 106 && angle < 150){
+			return 150;
+		}
+        if(angle > 245 && angle < 286){
+            return 245;
+        }
+        if(angle > 286 && angle < 330){
+            return 330;
+        }
+		return null;
+	}
+
+	private static moveAngleTowards(current: number, target: number, maxStep: number): number{
+		const delta = ((target - current + 540) % 360) - 180;
+
+		if(Math.abs(delta) <= maxStep){
+			return target;
+		}
+		return current + Math.sign(delta) * maxStep;
 	}
 
 	static init(): void{
