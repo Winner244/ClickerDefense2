@@ -15,6 +15,8 @@ import Wood1Image from '../../../assets/img/resources/wood/wood1.png';
 /// Ресурс - деревяшка - падает при рубке деревьев
 export class Wood extends ResourceCollected{
 	static readonly imageHandler: ImageHandler = new ImageHandler();
+    
+	static readonly LIFE_TIME_MS: number = 5000;
 
 	static readonly IMPULSE_X_MAX: number = 300;
 	static readonly IMPULSE_X_DECREASE_PER_MS: number = 0.1;
@@ -38,6 +40,7 @@ export class Wood extends ResourceCollected{
             Wood.imageHandler, 0, 0);
 			
         this.cursorHover = Cursor.hand;
+		this.lifeTime = Wood.LIFE_TIME_MS;
         this.angle = Helper.getRandom(0, 360);
 		this.impulseX = Helper.getRandom(-Wood.IMPULSE_X_MAX, Wood.IMPULSE_X_MAX);
 		this.impulseAngle = this.impulseX / 2;

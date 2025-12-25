@@ -2,6 +2,8 @@ import {AttackedObject} from "../../../models/objects/AttackedObject";
 
 import {Cursor} from "../../gamer/Cursor";
 
+import {Resources} from "../Resources";
+
 /// Собираемый Ресурс - базовый класс для всех ресурсов на карте
 export class ResourceCollected extends AttackedObject{
 
@@ -10,6 +12,7 @@ export class ResourceCollected extends AttackedObject{
     cursorHover: HTMLImageElement|string|null = Cursor.hand;
     angle: number = 0;
     bottomY: number = 0; //до куда будет падать собираемый объект силой гравитации
+    lifeTime: number|null = null;
 
     constructor(x: number, y: number, bottomY: number,
         healthMax: number, 
@@ -23,6 +26,14 @@ export class ResourceCollected extends AttackedObject{
 
     logic(drawsDiffMs: number): void{
         super.logicBase(drawsDiffMs);
+
+        if(this.lifeTime !== null){
+            this.lifeTime -= drawsDiffMs;
+            if(this.lifeTime <= 0){
+                Resources.DestroyResource(this.id);
+                return;
+            }
+        }
 
         //логика падения ресурса вниз
         if(this.y + this.height < this.bottomY){
