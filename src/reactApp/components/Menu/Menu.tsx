@@ -5,29 +5,27 @@ import { ApplicationState } from '../../store';
 import * as MenuStore from './MenuStore';
 import * as SettingsStore from '../../store/SettingsStore';
 
-import {App} from '../../App';
+import { App } from '../../App';
 
-import {Mouse} from '../../../gameApp/gamer/Mouse';
-import {Keypad} from '../../../gameApp/gamer/Keypad';
+import { Mouse } from '../../../gameApp/gamer/Mouse';
+import { Keypad } from '../../../gameApp/gamer/Keypad';
 
-import {Game} from '../../../gameApp/gameSystems/Game';
-import {AudioSystem} from '../../../gameApp/gameSystems/AudioSystem';
+import { Game } from '../../../gameApp/gameSystems/Game';
+import { AudioSystem } from '../../../gameApp/gameSystems/AudioSystem';
+
+import { SettingsModal } from '../SettingsModal/SettingsModal';
+import { MenuModal } from '../MenuModal/MenuModal';
 
 import './Menu.scss';
 
-import offSoundsImage from '../../../assets/img/menu/off-sounds.png'; 
-import onSoundsImage from '../../../assets/img/menu/on-sounds.png'; 
-
-import SelectingSoundUrl from '../../../assets/sounds/menu/selecting.mp3'; 
-import SoundTurnOnSoundUrl from '../../../assets/sounds/menu/soundTurnOn.mp3'; 
+import SelectingSoundUrl from '../../../assets/sounds/menu/selecting.mp3';
 
 interface IState {
-  hoverItem: number;
   view: 'main' | 'settings';
 }
 
-interface Prop {
-  isOpen?: boolean
+interface OwnProps {
+  isOpen?: boolean;
 }
 
 type Props =
@@ -35,187 +33,59 @@ type Props =
   & MenuStore.MenuAction
   & SettingsStore.SettingsState
   & SettingsStore.SettingsAction
-  & Prop;
+  & OwnProps;
 
 export class Menu extends React.Component<Props, IState> {
 
   constructor(props: Props) {
     super(props);
 
-    this.state = { 
-      hoverItem: -1,
+    this.state = {
       view: 'main'
     };
   }
 
-  static loadSelectSound(){
+  static loadSelectSound() {
     AudioSystem.load(SelectingSoundUrl);
   }
 
-  static show(): void{
+  static show(): void {
     Menu.playSoundSelect();
     App.Store.dispatch(MenuStore.actionCreators.open());
   }
 
-  static hide(): void{
+  static hide(): void {
     Menu.playSoundSelect();
     Game.isBlockMouseLogic = false;
     App.Store.dispatch(MenuStore.actionCreators.close());
   }
 
-  private static playSoundSelect(){
-	AudioSystem.play(Keypad.isEnter ? -1 : Mouse.x, SelectingSoundUrl, 20);
+  private static playSoundSelect() {
+    AudioSystem.play(Keypad.isEnter ? -1 : Mouse.x, SelectingSoundUrl, 20);
   }
 
-  componentWillUpdate(nextProps : Props, nextState : IState){
-    if(nextProps.isOpen !== this.props.isOpen){
-      if(this.state.hoverItem > -1 || this.state.view !== 'main'){
-        this.setState({ hoverItem: -1, view: 'main' });
+  componentWillUpdate(nextProps: Props) {
+    if (nextProps.isOpen !== this.props.isOpen) {
+      if (this.state.view !== 'main') {
+        this.setState({ view: 'main' });
       }
     }
   }
 
-  onKey(event: KeyboardEvent){
-    if(!this.props.isOpen){
-      return;
-    }
-
-    const menu = this.getItemsMenu();
-
-    switch (event.key){
-      case 'Enter':
-        if(this.state.hoverItem >= 0 && this.state.hoverItem < menu.length){
-          const hoverItemMenu = menu[this.state.hoverItem];
-          hoverItemMenu.props.onClick();
-          this.setState({ hoverItem: -1 });
-        }
-        break;
-
-      case 'ArrowUp':
-        const newValue1 =  this.state.hoverItem <= 0 
-          ? menu.length - 1 
-          : this.state.hoverItem - 1;
-
-        this.setState({ hoverItem: newValue1 });
-        break;
-
-      case 'ArrowDown':
-        const newValue2 =  this.state.hoverItem >= menu.length - 1
-          ? 0  
-          : this.state.hoverItem + 1;
-        this.setState({ hoverItem: newValue2 });
-        break;
-    }
-  }
-
-  componentDidMount() {
-    document.addEventListener('keydown', this.onKey.bind(this));
-    document.addEventListener('visibilitychange', this.onVisibilityChange.bind(this));
-  } 
-  
-  componentWillUnmount() {
-    document.removeEventListener('keydown', this.onKey.bind(this));
-    document.removeEventListener('visibilitychange', this.onVisibilityChange.bind(this));
-  }
-
-  onVisibilityChange(){
-    this.forceUpdate();
-  }
-
-  onClickContinue(){
+  onClickContinue() {
     Menu.playSoundSelect();
     this.props.close();
     Game.continue();
   }
 
-  onClickOpenSettings(){
+  onClickOpenSettings() {
     Menu.playSoundSelect();
-    this.setState({ view: 'settings', hoverItem: -1 });
+    this.setState({ view: 'settings' });
   }
 
-  onClickBackFromSettings(){
+  onClickBackFromSettings() {
     Menu.playSoundSelect();
-    this.setState({ view: 'main', hoverItem: -1 });
-  }
-
-  onChangeLanguage(event: React.ChangeEvent<HTMLSelectElement>){
-    const value = event.target.value;
-    if(value === 'ru' || value === 'en'){
-      this.props.setLanguageCode(value);
-    }
-  }
-
-  onChangeSoundsVolume(event: React.ChangeEvent<HTMLInputElement>){
-    const nextValue = Number(event.target.value);
-    this.props.setSoundsVolumePercent(nextValue);
-  }
-
-  onMouseEnterInInsideButtons(event: React.MouseEvent<HTMLButtonElement, MouseEvent>){
-    const element: HTMLButtonElement = event.target as HTMLButtonElement;
-    const index: number = parseInt(element.getAttribute('data-key') || '');
-    this.setState({ hoverItem: index });
-  }
-  onMouseLeaveInsideButtons(event: React.MouseEvent<HTMLButtonElement, MouseEvent>){
-    this.setState({ hoverItem: -1 });
-  }
-
-  onClickSound(){
-    AudioSystem.isEnabled = !AudioSystem.isEnabled;
-    this.forceUpdate();
-
-    if(AudioSystem.isEnabled){
-		AudioSystem.play(-1, SoundTurnOnSoundUrl, 100);
-    }
-  }
-
-  getItemsMenu(){
-    let i = 0;
-    const itemsMenu = [];
-
-    if(this.state.view === 'settings'){
-      itemsMenu.push((
-        <button 
-          key={i} 
-          data-key={i} 
-          className={"menu__button " + (this.state.hoverItem === i++ ? 'menu__button--hover' : '')} 
-          onClick={() => this.onClickBackFromSettings()} 
-          onMouseEnter={(e) => this.onMouseEnterInInsideButtons(e)}
-          onMouseLeave={(e) => this.onMouseLeaveInsideButtons(e)}
-        >
-          {this.props.language.Menu.BackButtonLabel}
-        </button>
-      ));
-
-      return itemsMenu;
-    }
-
-    itemsMenu.push((
-      <button 
-        key={i} 
-        data-key={i} 
-        className={"menu__button " + (this.state.hoverItem === i++ ? 'menu__button--hover' : '')} 
-        onClick={() => this.onClickContinue()} 
-        onMouseEnter={(e) => this.onMouseEnterInInsideButtons(e)}
-        onMouseLeave={(e) => this.onMouseLeaveInsideButtons(e)}
-      >
-        {this.props.language.Menu.ContinueButtonLabel}
-      </button>
-    ));
-
-    itemsMenu.push((
-      <button 
-        key={i} 
-        data-key={i} 
-        className={"menu__button " + (this.state.hoverItem === i++ ? 'menu__button--hover' : '')} 
-        onClick={() => this.onClickOpenSettings()} 
-        onMouseEnter={(e) => this.onMouseEnterInInsideButtons(e)}
-        onMouseLeave={(e) => this.onMouseLeaveInsideButtons(e)}
-      >
-        {this.props.language.Menu.SettingsButtonLabel}
-      </button>
-    ));
-
-    return itemsMenu;
+    this.setState({ view: 'main' });
   }
 
   render() {
@@ -223,86 +93,60 @@ export class Menu extends React.Component<Props, IState> {
       <div>
         {this.props.isOpen
           ? <div className="menu noselect">
-              <div className="menu__body">
-                  <div className="menu__title">
-                    {this.state.view === 'settings'
-                      ? this.props.language.Menu.SettingsHeaderLabel
-                      : this.props.language.Menu.HeaderLabel
-                    }
-                  </div>
-                  <div className="menu__close" onClick={() => this.onClickContinue()}>
-                      <div className="menu__close-body">x</div>
-                  </div>
-
-                  {this.state.view === 'settings'
-                    ? <div className='menu__settings'>
-                        <div className='menu__settings-row'>
-                          <div className='menu__settings-label'>{this.props.language.Menu.LanguageLabel}</div>
-                          <select
-                            className='menu__settings-select'
-                            value={this.props.languageCode}
-                            onChange={(e) => this.onChangeLanguage(e)}
-                          >
-                            <option value='en'>{this.props.language.Menu.LanguageEnglishLabel}</option>
-                            <option value='ru'>{this.props.language.Menu.LanguageRussianLabel}</option>
-                          </select>
-                        </div>
-
-                        <div className='menu__settings-row'>
-                          <div className='menu__settings-label'>{this.props.language.Menu.SoundsVolumeLabel}: {this.props.soundsVolumePercent}%</div>
-                          <input
-                            className='menu__settings-range'
-                            type='range'
-                            min={0}
-                            max={100}
-                            step={1}
-                            value={this.props.soundsVolumePercent}
-                            onChange={(e) => this.onChangeSoundsVolume(e)}
-                          />
-                        </div>
-                      </div>
-                    : null
-                  }
-
-                  {this.getItemsMenu()}
-              </div>
-            </div>
-          : null
-        }
-
-        {this.props.isOpen
-          ? <button 
-                className={"menu__button-sound-off noselect " + (AudioSystem.isEnabled ? 'menu__button-sound-off--on' : 'menu__button-sound-off--off')} 
-                onClick={() => this.onClickSound()}
-            >
-                {AudioSystem.isEnabled 
-                ? <img className='nodrag' src={onSoundsImage} alt='turn on sounds' />
-                : <img className='nodrag' src={offSoundsImage} alt='turn off sounds' />
+            <div className="menu__body">
+              <div className="menu__title">
+                {this.state.view === 'settings'
+                  ? this.props.language.Menu.Settings.HeaderLabel
+                  : this.props.language.Menu.HeaderLabel
                 }
-            </button>
+              </div>
+              <div className="menu__close" onClick={() => this.onClickContinue()}>
+                <div className="menu__close-body">x</div>
+              </div>
+
+              {this.state.view === 'settings'
+                ? <SettingsModal
+                  language={this.props.language}
+                  languageCode={this.props.languageCode}
+                  soundsVolumePercent={this.props.soundsVolumePercent}
+                  setLanguageCode={this.props.setLanguageCode}
+                  setSoundsVolumePercent={this.props.setSoundsVolumePercent}
+                />
+                : null
+              }
+
+              <MenuModal
+                isOpen={!!this.props.isOpen}
+                view={this.state.view}
+                language={this.props.language}
+                onClickContinue={() => this.onClickContinue()}
+                onClickOpenSettings={() => this.onClickOpenSettings()}
+                onClickBackFromSettings={() => this.onClickBackFromSettings()}
+              />
+            </div>
+          </div>
           : null
         }
-
 
         {this.props.isOpen
           ? <div className='menu__footer'>
-              <a className='menu__footer-link-version' target="_blank" rel="noreferrer" href='https://gitlab.com/sanek244/clickerdefense2'>v0</a>
-              <a className='menu__footer-link-author' target="_blank" rel="noreferrer" href='https://vk.com/aleksandr_winner'>© winner</a>
-            </div>
+            <a className='menu__footer-link-version' target="_blank" rel="noreferrer" href='https://gitlab.com/sanek244/clickerdefense2'>v0</a>
+            <a className='menu__footer-link-author' target="_blank" rel="noreferrer" href='https://vk.com/aleksandr_winner'>© winner</a>
+          </div>
           : null
         }
-      </div>);
+      </div>
+    );
   }
 }
-	
-// Wire up the React component to the Redux store
+
 export default connect(
-  (state: ApplicationState, ownProps: Prop) => {
-      return {
-        ...(state.menu as MenuStore.MenuState),
-        ...(state.settings as SettingsStore.SettingsState),
-        ...ownProps
-      };
+  (state: ApplicationState, ownProps: OwnProps) => {
+    return {
+      ...(state.menu as MenuStore.MenuState),
+      ...(state.settings as SettingsStore.SettingsState),
+      ...ownProps
+    };
   },
   { ...MenuStore.actionCreators, ...SettingsStore.actionCreators }
 )(Menu);

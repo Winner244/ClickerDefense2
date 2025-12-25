@@ -79,6 +79,11 @@ export const actionCreators = {
         const clamped = clampInt(soundsVolumePercent, 0, 100);
         localStorage.setItem(LS_SOUNDS_VOLUME_PERCENT_KEY, clamped.toString());
         AudioSystem.soundVolume = clamped;
+        if(clamped === 0){
+            AudioSystem.isEnabled = false;
+        } else {
+            AudioSystem.isEnabled = true;
+        }
 
         return {
             type: 'SETTINGS__SET_SOUNDS_VOLUME_PERCENT',

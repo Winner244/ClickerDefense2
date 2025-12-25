@@ -10,6 +10,7 @@ import * as SettingsStore from '../../store/SettingsStore';
 import s from './GameDisplay.module.scss';
 
 import woodImg from '../../../assets/img/resources/wood/wood1.png';
+import { Menu } from '../Menu/Menu';
 
 type Props = SettingsStore.SettingsState;
 
@@ -57,6 +58,7 @@ class GameDisplay extends React.Component<Props, State> {
     onMenuClick() {
         if (Game.isPaused) {
             Game.continue();
+            Menu.hide();
         }
         else {
             Game.pause();

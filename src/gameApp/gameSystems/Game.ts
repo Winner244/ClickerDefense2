@@ -183,7 +183,6 @@ export class Game {
 			AudioSystem.resumeSounds();
 		}
 
-        Menu.hide();
 		Game.isPaused = false;
 		Game.lastDrawTime = 0;
 		if(!this._animationId)

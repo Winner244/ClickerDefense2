@@ -4,7 +4,7 @@ export type DisctionaryLanguageList = {  //values are stored in /assets/language
         ContinueButtonLabel: string,
         SettingsButtonLabel: string,
         Settings: {
-            SettingsHeaderLabel: string,
+            HeaderLabel: string,
             BackButtonLabel: string,
             LanguageLabel: string,
             LanguageEnglishLabel: string,

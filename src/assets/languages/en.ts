@@ -6,7 +6,7 @@ export const DisctionaryEnList: DisctionaryLanguageList = {
         ContinueButtonLabel: 'Continue',
         SettingsButtonLabel: 'Settings',
         Settings: {
-            SettingsHeaderLabel: 'Settings',
+            HeaderLabel: 'Settings',
             BackButtonLabel: 'Back',
             LanguageLabel: 'Language',
             LanguageEnglishLabel: 'English',

@@ -6,7 +6,7 @@ export const DisctionaryRuList: DisctionaryLanguageList = {
         ContinueButtonLabel: 'Продолжить',
         SettingsButtonLabel: 'Настройки',
         Settings: {
-            SettingsHeaderLabel: 'Настройки',
+            HeaderLabel: 'Настройки',
             BackButtonLabel: 'Назад',
             LanguageLabel: 'Язык',
             LanguageEnglishLabel: 'Английский',
