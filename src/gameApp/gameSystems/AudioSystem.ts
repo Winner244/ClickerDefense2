@@ -182,12 +182,17 @@ export class AudioSystem{
 	{
 		const context = this._context;
 
-		const pannerValue = x == -1 
-			? 0 
+		let pannerValue = x == -1
+			? 0
 			: Math.min(1, Math.max(-1, x / Draw.canvas.width * 2 - 1));
+		if (!Number.isFinite(pannerValue)) {
+			pannerValue = 0;
+		}
 
 		
 		const sourceTone = new Tone.Player(buffer);
+		const gainValue = AudioSystem._clampPercent(volumePercent) / 100;
+		const gain = new Tone.Gain(Number.isFinite(gainValue) ? gainValue : 1);
 		const panner = new Tone.Panner(pannerValue);
 		
 		if(isUseBiquadFilterRandom) {
@@ -200,15 +205,14 @@ export class AudioSystem{
 			};
 			//const distortion = new Tone.Distortion(0.5);
 			//sourceTone.chain(new Tone.BiquadFilter(option), distortion, Tone.Destination);
-			sourceTone.chain(new Tone.BiquadFilter(option), panner, Tone.Destination);
+			sourceTone.chain(new Tone.BiquadFilter(option), gain, panner, Tone.Destination);
 		}
 		else{
-			sourceTone.chain(panner, Tone.Destination);
+			sourceTone.chain(gain, panner, Tone.Destination);
 		}
 
 		sourceTone.playbackRate = Math.max(0.1, speed);
-		sourceTone.volume.value = AudioSystem._percentToDecibels(volumePercent); // Tone expects decibels
-		sourceTone.toDestination();
+		// Volume is controlled via the Gain node (linear 0..1)
 		sourceTone.start("+" + delayStartingSeconds, offsetSeconds); 
 		return sourceTone;
 	}
