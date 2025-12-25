@@ -47,6 +47,8 @@ export class Game {
 		Game._keysDown.clear();
 		Game._lastPanMouseX = null;
 		Game._lastPanMouseY = null;
+		Draw.canvas.removeEventListener('wheel', Game.onWheel as any);
+		Draw.canvas.addEventListener('wheel', Game.onWheel as any, { passive: false });
 		Mouse.init();
 		Gamer.init();
 		Labels.init();
@@ -117,18 +119,19 @@ export class Game {
 		const dt = drawsDiffMs / 1000;
 		const speedPxPerSec = 700;
 		const step = speedPxPerSec * dt;
+		const worldStep = step / Math.max(0.01, Camera.zoom);
 
 		if (Game._keysDown.has('ArrowLeft') || Game._keysDown.has('a')) {
-			Camera.move(-step, 0);
+			Camera.move(-worldStep, 0);
 		}
 		if (Game._keysDown.has('ArrowRight') || Game._keysDown.has('d')) {
-			Camera.move(step, 0);
+			Camera.move(worldStep, 0);
 		}
 		if (Game._keysDown.has('ArrowUp') || Game._keysDown.has('w')) {
-			Camera.move(0, -step);
+			Camera.move(0, -worldStep);
 		}
 		if (Game._keysDown.has('ArrowDown') || Game._keysDown.has('s')) {
-			Camera.move(0, step);
+			Camera.move(0, worldStep);
 		}
 
 		// Right-mouse drag pans the world (grab + move)
@@ -140,7 +143,7 @@ export class Game {
 			if (Game._lastPanMouseX !== null && Game._lastPanMouseY !== null) {
 				const dx = mx - Game._lastPanMouseX;
 				const dy = my - Game._lastPanMouseY;
-				Camera.move(-dx, -dy);
+				Camera.move(-dx / Math.max(0.01, Camera.zoom), -dy / Math.max(0.01, Camera.zoom));
 			}
 			Game._lastPanMouseX = mx;
 			Game._lastPanMouseY = my;
@@ -200,6 +203,24 @@ export class Game {
 
 	private static onKeyUp(event: KeyboardEvent) : void{
 		Game._keysDown.delete(Game.normalizeKey(event.key));
+	}
+
+	private static onWheel(event: WheelEvent): void {
+		if (Game.isPaused || Game.isBlockMouseLogic) {
+			return;
+		}
+
+		const mx = Mouse.canvasX;
+		const my = Mouse.canvasY;
+		const isInCanvas = mx >= 0 && my >= 0 && mx <= Draw.canvas.width && my <= Draw.canvas.height;
+		if (!isInCanvas) {
+			return;
+		}
+
+		event.preventDefault();
+		const direction = event.deltaY > 0 ? -1 : 1;
+		const factor = direction > 0 ? 1.1 : 1 / 1.1;
+		Camera.setZoomAtScreenPoint(mx, my, Camera.zoom * factor);
 	}
 
 	private static drawAll(millisecondsFromStart: number, drawsDiffMs: number) : void{
