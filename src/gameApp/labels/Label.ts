@@ -12,6 +12,7 @@ export class Label{
 	x: number;
 	y: number;
 	text: string;
+	image: HTMLImageElement|null;
 
 	red: number;
 	green: number;
@@ -33,12 +34,14 @@ export class Label{
 		lifeTimeMs: number,
 		isDecreaseOpacity: boolean = true,
 		isDisplayBackground: boolean = false,
-		backgroundRed: number = 0, backgroundGreen: number = 0, backgroundBlue: number = 0)
+		backgroundRed: number = 0, backgroundGreen: number = 0, backgroundBlue: number = 0,
+		image: HTMLImageElement|null = null)
 	{
 		this.id = Helper.generateUid();
 		this.x = x;
 		this.y = y;
 		this.text = text;
+		this.image = image;
 
 		this.isDecreaseOpacity = isDecreaseOpacity;
 
@@ -66,12 +69,24 @@ export class Label{
 
 		if(this.isDisplayBackground){
 			Draw.ctx.fillStyle = `rgba(${this.backgroundRed},${this.backgroundGreen},${this.backgroundBlue},${opacity})`;
-			Draw.ctx.font = "16px Calibri";
-			Draw.ctx.fillText(this.text, this.x -1, this.y - 1);
+			Draw.ctx.font = "18px Calibri";
+			Draw.ctx.fillText(this.text, this.x -4, this.y - 1);
 		}
 
 		Draw.ctx.fillStyle = `rgba(${this.red},${this.green},${this.blue},${opacity})`;
 		Draw.ctx.font = "14px Calibri";
 		Draw.ctx.fillText(this.text, this.x, this.y);
+
+		if(this.image && this.image.complete){
+		    const textWidth = Draw.ctx.measureText(this.text).width;
+			const iconHeight = 14;
+			const iconWidth = Math.max(1, this.image.width * (iconHeight / Math.max(1, this.image.height)));
+			const iconX = this.x + textWidth + 4;
+			const iconY = this.y - iconHeight + 2;
+			const prevAlpha = Draw.ctx.globalAlpha;
+			Draw.ctx.globalAlpha = opacity;
+			Draw.ctx.drawImage(this.image, iconX, iconY, iconWidth, iconHeight);
+			Draw.ctx.globalAlpha = prevAlpha;
+		}
 	}
 }

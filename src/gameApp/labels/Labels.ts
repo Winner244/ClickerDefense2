@@ -24,6 +24,16 @@ export class Labels{
 		Labels.labels.push(new Label(x, y, text, 255, 0, 0, lifeTimeMs, true, true, 0, 0, 0));
 	}
 
+	// ресурсы (например "+ 1" + иконка)
+	static createResourceLabel(
+        x: number, y: number, 
+        r: number, g: number, b: number, 
+        backgroundRed: number, backgroundGreen: number, backgroundBlue: number,
+        text: string, image: HTMLImageElement, 
+        lifeTimeMs: number = Labels.labelLifetimeMs): void{
+		Labels.labels.push(new Label(x, y, text, r, g, b, lifeTimeMs, false, true, backgroundRed, backgroundGreen, backgroundBlue, image));
+	}
+
 
 	static logic(drawsDiffMs: number): void{
 		//контроль за временем жизни

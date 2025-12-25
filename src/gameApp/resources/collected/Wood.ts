@@ -10,12 +10,14 @@ import {Helper} from "../../helpers/Helper";
 
 import {Resources} from "../Resources";
 
+import {Labels} from "../../labels/Labels";
+
 import Wood1Image from '../../../assets/img/resources/wood/wood1.png';  
 
 /// Ресурс - деревяшка - падает при рубке деревьев
 export class Wood extends ResourceCollected{
 	static readonly imageHandler: ImageHandler = new ImageHandler();
-    
+
 	static readonly LIFE_TIME_MS: number = 5000;
 
 	static readonly IMPULSE_X_MAX: number = 300;
@@ -135,6 +137,7 @@ export class Wood extends ResourceCollected{
 
     onClicked(damage: number, mouseX: number, mouseY: number): void{
         Gamer.addWood(damage);
+		Labels.createResourceLabel(mouseX, mouseY, 200, 50, 0, 150, 0, 0, `+ ${damage}`, this.image);
         Resources.DestroyResource(this.id);
     }
 }
