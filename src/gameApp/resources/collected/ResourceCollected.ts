@@ -45,7 +45,7 @@ export class ResourceCollected extends AttackedObject{
     }
 
     onClicked(damage: number, mouseX: number, mouseY: number): void{
-        AudioSystem.play(mouseX, takeSound, 1, 1, true);
+        AudioSystem.play(mouseX, takeSound, 100, 1, true);
         Resources.DestroyResource(this.id);
     }
 

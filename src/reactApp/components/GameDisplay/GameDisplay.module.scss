@@ -2,7 +2,7 @@
 
     &__header{
         height: 50px;
-        background-color: rgb(165 105 34);
+        background-color: rgb(189 128 22);
         border: 10px solid #822900;
         box-shadow: inset 0 0 1px #000000;
         display: flex;
@@ -43,6 +43,8 @@
         border: 3px dotted #460d0d;
         color: #3b0000;
         cursor: pointer;
+        box-shadow: 0 0 3px black; 
+        outline: none;
 
         &:hover{
             background-color: #f6b800;

@@ -80,7 +80,7 @@ export class Tree extends ResourceMined{
 
 
     onClicked(damage: number, mouseX: number, mouseY: number): void{
-		AudioSystem.play(mouseX, Axe1Sound, 1, 1, true);
+		AudioSystem.play(mouseX, Axe1Sound, 100, 1, true);
         //this.applyDamage(damage, mouseX, mouseY, null, false);
         Wood.init();
         const woodX = mouseX;

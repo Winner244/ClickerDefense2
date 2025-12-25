@@ -8,8 +8,24 @@ import AudioIIRFilter from "../../models/AudioIIRFilter";
 
 /** Система управления звуком - единичный статичный класс */
 export class AudioSystem{
-	public static soundVolume: number = 1; //общий уровень звука эффектов (0 - is min value, 1 - is max value)
-	public static musicVolume: number = 1; //общий уровень звука фоновой музыки (0 - is min value, 1 - is max value)
+	public static soundVolume: number = 100; //общий уровень звука эффектов (0 - min, 100 - max)
+	public static musicVolume: number = 100; //общий уровень звука фоновой музыки (0 - min, 100 - max)
+
+	private static _clampPercent(value: number): number {
+		if (!Number.isFinite(value)) {
+			return 100;
+		}
+		return Math.max(0, Math.min(100, value));
+	}
+
+	// Tone.Player.volume is in decibels, so convert from percent (linear amplitude).
+	private static _percentToDecibels(percent: number, minDb: number = -60): number {
+		const clamped = AudioSystem._clampPercent(percent);
+		if (clamped <= 0) {
+			return minDb;
+		}
+		return Math.max(minDb, 20 * Math.log10(clamped / 100));
+	}
 
 	private static _isEnabled: boolean = sessionStorage.getItem('AudioSystem.isEnabled') != 'false'; //включена/отключена система?
 	public static set isEnabled(value: boolean){
@@ -88,7 +104,7 @@ export class AudioSystem{
 
 	public static playMusic(
 		pathToAudioFile: string,
-		volume: number = 1, 
+		volume: number = 100, 
 		delayStartingSeconds: number = 0): Promise<Tone.Player|null>
 	{
 		return this.play(-1, pathToAudioFile, volume, 1, false, true, delayStartingSeconds, 0, true);
@@ -97,7 +113,7 @@ export class AudioSystem{
 	public static play(
 		x: number, 
 		pathToAudioFile: string, 
-		volumeChange: number = 0,
+		volume: number = 100,
 		speed: number = 1, 
 		isUseBiquadFilterRandom = false, 
 		isUseAutoPauseAndResume: boolean = false, 
@@ -111,13 +127,14 @@ export class AudioSystem{
 			return new Promise(done => done(null));
 		}
 
-		//volume
-		var volumeSettings = isMusic 
-			? AudioSystem.musicVolume 
+		const volumeSettingsPercent = isMusic
+			? AudioSystem.musicVolume
 			: AudioSystem.soundVolume;
 
+		const finalVolumePercent = AudioSystem._clampPercent(volume) * AudioSystem._clampPercent(volumeSettingsPercent) / 100;
+
 		return this._load(pathToAudioFile)
-			.then(buffer => AudioSystem._play(x, buffer, volumeChange * (1 + 1 - volumeSettings), speed, isUseBiquadFilterRandom, delayStartingSeconds, offsetStartingSeconds))
+			.then(buffer => AudioSystem._play(x, buffer, finalVolumePercent, speed, isUseBiquadFilterRandom, delayStartingSeconds, offsetStartingSeconds))
 			.then(source => {
 				if(!source){
 					return null;
@@ -157,7 +174,7 @@ export class AudioSystem{
 	private static _play(
 		x: number, 
 		buffer: AudioBuffer, 
-		volumeChange: number, 
+		volumePercent: number, 
 		speed: number, 
 		isUseBiquadFilterRandom = false, 
 		delayStartingSeconds: number = 0, 
@@ -190,7 +207,7 @@ export class AudioSystem{
 		}
 
 		sourceTone.playbackRate = Math.max(0.1, speed);
-		sourceTone.volume.value = volumeChange; //changing The volume of the output in decibels.
+		sourceTone.volume.value = AudioSystem._percentToDecibels(volumePercent); // Tone expects decibels
 		sourceTone.toDestination();
 		sourceTone.start("+" + delayStartingSeconds, offsetSeconds); 
 		return sourceTone;
@@ -264,7 +281,7 @@ export class AudioSystem{
 		const oscillator = context.createOscillator();
 
 		const gainNode = context.createGain();
-		gainNode.gain.value = volume * AudioSystem.soundVolume;
+		gainNode.gain.value = (AudioSystem._clampPercent(volume) / 100) * (AudioSystem._clampPercent(AudioSystem.soundVolume) / 100);
 		gainNode.gain.exponentialRampToValueAtTime(0.00001, context.currentTime + 1); 
 
 		const pannerNode = context.createStereoPanner();
