@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import clsx from 'clsx';
 
 import { ApplicationState } from '../../store';
 import { Game } from '../../../gameApp/gameSystems/Game';
@@ -70,7 +71,7 @@ class GameDisplay extends React.Component<Props, State> {
             <div id='topHeader' className={s.gameDisplay__header}>
                 <div className={s.gameDisplay__resources}>
                     <span className={s.gameDisplay__resourceValue}>{this.state.woodCount}</span>
-                    <img className={s.gameDisplay__resourceIcon} src={woodImg} alt="Wood" />
+                    <img className={clsx(s.gameDisplay__resourceIcon, 'nodrag')} src={woodImg} alt="Wood" />
                 </div>
 
                 <button 

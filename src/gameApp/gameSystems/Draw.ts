@@ -8,6 +8,7 @@ export class Draw{
 	static init(element: HTMLCanvasElement): void{
 		this.canvas = element;
 		this.ctx = element.getContext('2d') || new CanvasRenderingContext2D();
+		this.canvas.addEventListener('contextmenu', (e) => e.preventDefault());
 	}
 
 	/** Прорисовка жизней */

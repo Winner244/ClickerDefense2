@@ -264,7 +264,8 @@ export class AttackedObject {
 		// If we were given a pre-rendered offscreen (already rotated and expanded),
 		// draw it centered with its true dimensions (do not squash into this.width/height).
 		if(imageOrAnimation instanceof OffscreenCanvas){
-			Draw.ctx.setTransform(1, 0, 0, 1, centerX, centerY);
+			Draw.ctx.save();
+			Draw.ctx.translate(centerX, centerY);
 			Draw.ctx.drawImage(
 				imageOrAnimation,
 				-imageOrAnimation.width / 2,
@@ -272,12 +273,13 @@ export class AttackedObject {
 				imageOrAnimation.width,
 				imageOrAnimation.height
 			);
-			Draw.ctx.setTransform(1, 0, 0, 1, 0, 0);
+			Draw.ctx.restore();
 			this.currentCanvas = imageOrAnimation;
 			return;
 		}
 
-		Draw.ctx.setTransform(1, 0, 0, 1, centerX, centerY);
+		Draw.ctx.save();
+		Draw.ctx.translate(centerX, centerY);
 		Draw.ctx.rotate(this.angle * Math.PI / 180);
 
 		const drawX = -this.width / 2;
@@ -293,8 +295,7 @@ export class AttackedObject {
 			this.setCanvas(imageOrAnimation, frame);
 		}
 
-		Draw.ctx.setTransform(1, 0, 0, 1, 0, 0);
-		Draw.ctx.rotate(0);
+		Draw.ctx.restore();
 	}
 
 	drawHealthBase(x: number|null = null, y: number|null = null, width: number|null = null, 
